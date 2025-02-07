@@ -8,6 +8,22 @@ from controller.login import handle_login_request
 from controller.accounts import list_accounts
 from controller.accounts import list_accounts
 
+# TODO put these functions somewhere else
+# Recursive function for object to dict
+def object_to_dict_recursive(obj):
+    """Recursively converts objects to dictionaries."""
+    if hasattr(obj, "__dict__"):
+        return {key: object_to_dict_recursive(value) for key, value in vars(obj).items()}
+    return obj
+
+# Recursive function for dict to object
+def dict_to_object_recursive(dct, cls):
+    """Converts a dictionary back to an object of type cls."""
+    obj = cls.__new__(cls)  # Create an empty instance
+    for key, value in dct.items():
+        setattr(obj, key, dict_to_object_recursive(value, globals().get(cls.__name__, object)) if isinstance(value, dict) else value)
+    return obj
+
 # Load config
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -26,11 +42,21 @@ def hash_password(password):
 # TODO: message_dict[mid] = message_obj
 # TODO: user_dict[uid] = user_obj
 hardcoded_accounts = [("yinan", "pass1"), ("alayna", "pass2"), ("alex", "pass3")]
-accounts_dict = dict()
+accounts_dict = dict()  # 
 for account in hardcoded_accounts:
     user = User(username=account[0], password=account[1])
     accounts_dict[user.uid] = { "username": account[0], "password": hash_password(account[1]) }
 print("Accounts", list_accounts(accounts_dict))
+
+# User dict
+users_dict = dict()
+with open("server/data/user.json", "r") as f:
+        users = json.load(f)
+for k, v in users.items():
+    user = dict_to_object_recursive(v, User)
+    users_dict[user.uid] = user
+# print(users_dict)
+
 # TODO END get rid of this hardcoded code
 
 def trans_to_pig_latin(text):

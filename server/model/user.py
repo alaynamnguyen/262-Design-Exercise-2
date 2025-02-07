@@ -79,11 +79,11 @@ class User:
         """
         self.messages.discard(message_id)
 
-    # def __repr__(self):
-    #     """
-    #     Returns a string representation of the user.
-    #     """
-    #     return f"User(id={self.uid}, username={self.username}, messages={self.messages})"
+    def __repr__(self):
+        """
+        Returns a string representation of the user.
+        """
+        return f"User(uid={self.uid}, username={self.username}, password={self.password}, messages={self.messages})"
     
 if __name__ == "__main__":
     import hashlib
