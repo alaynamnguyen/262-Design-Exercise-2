@@ -31,7 +31,6 @@ class User:
         self.username = username
         self.password = password
         self.messages = list()
-        self.dummy_list = list()
 
     def add_messages(self, message_id):
         """
@@ -73,27 +72,17 @@ class User:
         return f"User(id={self.uid}, username={self.username}, messages={self.messages})"
     
 if __name__ == "__main__":
-    user = User("yinan", "pass1")
-    user1 = User("dummy1", "pass_dummy1")
-    user2 = User("dummy2", "pass_dummy2")
-    user.dummy_list += [user1, user2]
-    print(user)
-    user_dict = object_to_dict_recursive(user)
-    print(type(user_dict))
-    print(user_dict)
-    with open("test/user_dummy.json", "w") as f:
-        json.dump(user, f, default=object_to_dict_recursive, indent=4) 
+    import hashlib
 
-    # Load JSON and reconstruct objects
-    with open("test/user_dummy.json", "r") as f:
-        user_read = json.load(f)
+    def hash_password(password):
+        return hashlib.sha256(password.encode()).hexdigest()
 
-    user_obj = dict_to_object_recursive(user_read, User)
-    print(user.uid)
-    print(user.username)
-    print(user.password)
-    print(user.messages)
-    print(user.dummy_list[0].username)
-    print(type(user.dummy_list[0]))
+    usernames = ['yinan', 'alayna', 'jim', 'alex']
+    users = []
+    for username in usernames:
+        users.append(User(username, hash_password(f"{username}_pass")))
+
+    with open("server/data/users.json", "w") as f:
+        json.dump(users, f, default=object_to_dict_recursive, indent=4) 
 
 

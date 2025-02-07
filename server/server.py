@@ -20,6 +20,9 @@ import hashlib
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
+# Runtime storage
+# TODO: message_dict[mid] = message_obj
+# TODO: user_dict[uid] = user_obj
 hardcoded_accounts = [("yinan", "pass1"), ("alayna", "pass2")]
 accounts_dict = dict()
 users = []
