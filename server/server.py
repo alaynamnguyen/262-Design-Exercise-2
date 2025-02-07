@@ -6,6 +6,7 @@ import json
 from model import User
 from controller.login import handle_login_request
 from controller.accounts import list_accounts
+from controller.accounts import list_accounts
 
 # Load config
 config = configparser.ConfigParser()
@@ -24,11 +25,12 @@ def hash_password(password):
 # Runtime storage
 # TODO: message_dict[mid] = message_obj
 # TODO: user_dict[uid] = user_obj
-hardcoded_accounts = [("yinan", "pass1"), ("alayna", "pass2")]
+hardcoded_accounts = [("yinan", "pass1"), ("alayna", "pass2"), ("alex", "pass3")]
 accounts_dict = dict()
 for account in hardcoded_accounts:
     user = User(username=account[0], password=account[1])
     accounts_dict[user.uid] = { "username": account[0], "password": hash_password(account[1]) }
+print("Accounts", list_accounts(accounts_dict))
 print("Accounts", list_accounts(accounts_dict))
 # TODO END get rid of this hardcoded code
 
@@ -67,6 +69,14 @@ def service_connection(key, mask):
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
+                handle_login_request(data, message, accounts_dict)
+            elif message["task"] == "list-accounts":
+                print("Calling list_accounts")
+                response = {
+                    "task": "list-accounts-reply",
+                    "accounts": list_accounts(accounts_dict, wildcard=message["wildcard"])
+                }
+                data.outb += json.dumps(response).encode("utf-8")
                 handle_login_request(data, message, accounts_dict)
             elif message["task"] == "list-accounts":
                 print("Calling list_accounts")
