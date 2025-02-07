@@ -81,11 +81,11 @@ if __name__ == "__main__":
     user_dict = object_to_dict_recursive(user)
     print(type(user_dict))
     print(user_dict)
-    with open("user_dummy.json", "w") as f:
+    with open("test/user_dummy.json", "w") as f:
         json.dump(user, f, default=object_to_dict_recursive, indent=4) 
 
     # Load JSON and reconstruct objects
-    with open("user_dummy.json", "r") as f:
+    with open("test/user_dummy.json", "r") as f:
         user_read = json.load(f)
 
     user_obj = dict_to_object_recursive(user_read, User)

@@ -1,0 +1,22 @@
+{
+    "uid": "c4c37698-e022-4fa1-b1d3-fd0a540829e9",
+    "username": "yinan",
+    "password": "pass1",
+    "messages": [],
+    "dummy_list": [
+        {
+            "uid": "904db8a0-d01f-4804-9c25-b602cc491eab",
+            "username": "dummy1",
+            "password": "pass_dummy1",
+            "messages": [],
+            "dummy_list": []
+        },
+        {
+            "uid": "ba20a6ff-e2ba-4d4f-abf8-bdfcc42a549b",
+            "username": "dummy2",
+            "password": "pass_dummy2",
+            "messages": [],
+            "dummy_list": []
+        }
+    ]
+}
