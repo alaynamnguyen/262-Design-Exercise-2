@@ -79,11 +79,11 @@ class User:
         """
         self.messages.discard(message_id)
 
-    def __repr__(self):
-        """
-        Returns a string representation of the user.
-        """
-        return f"User(id={self.uid}, username={self.username}, messages={self.messages})"
+    # def __repr__(self):
+    #     """
+    #     Returns a string representation of the user.
+    #     """
+    #     return f"User(id={self.uid}, username={self.username}, messages={self.messages})"
     
 if __name__ == "__main__":
     import hashlib
@@ -98,12 +98,18 @@ if __name__ == "__main__":
         users[user.uid] = user
 
     print(users)
+    print()
     with open("server/data/user.json", "w") as f:
         json.dump(users, f, default=object_to_dict_recursive, indent=4)
 
     with open("server/data/user.json", "r") as f:
         users = json.load(f)
 
-    users = dict_to_object_recursive(users, User)
+    print(users)
+
+    users_dict = dict()
+    for k, v in users.items():
+        user = dict_to_object_recursive(v, User)
+        users_dict[user.uid] = user
     print(users)
 
