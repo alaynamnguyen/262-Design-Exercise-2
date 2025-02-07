@@ -1,26 +1,26 @@
-[
-    {
-        "uid": "0101562d-f991-49ce-a8f6-62f35877059d",
+{
+    "1ce00406-e04a-42cf-aa24-8ddab89cce6b": {
+        "uid": "1ce00406-e04a-42cf-aa24-8ddab89cce6b",
         "username": "yinan",
         "password": "c4bd3d5cba95c4978eb3ea87fa44ddf259346f276f0ad1800d721661f285728b",
         "messages": []
     },
-    {
-        "uid": "c04690ea-788d-44ea-aefd-23384f5f2c0f",
+    "20584af1-eb11-43c3-a014-abc2533b4c49": {
+        "uid": "20584af1-eb11-43c3-a014-abc2533b4c49",
         "username": "alayna",
         "password": "3f5be9e1c646a0b0c0debc04a4b4b3cd14e02172368342fa2b5fade0317b9066",
         "messages": []
     },
-    {
-        "uid": "9f987496-ce3f-4e06-a386-8ccc0c9c10af",
+    "1eb25b5b-a532-4474-8b1f-72dea399a67c": {
+        "uid": "1eb25b5b-a532-4474-8b1f-72dea399a67c",
         "username": "jim",
         "password": "33786774afd49d3a3bdfaf45aa1bb02689599e7d5dda5e8d86b2abde6077d15b",
         "messages": []
     },
-    {
-        "uid": "7d59fa46-0e7c-4fce-8702-6b0787bcd45b",
+    "4d776f50-389b-4468-9189-0c75b8937175": {
+        "uid": "4d776f50-389b-4468-9189-0c75b8937175",
         "username": "alex",
         "password": "079fef94bd65a7aed2ef8c73bfe8c79a7d8d291d7b91c2863ceeb683a11db15a",
         "messages": []
     }
-]
+}

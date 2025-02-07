@@ -78,11 +78,12 @@ if __name__ == "__main__":
         return hashlib.sha256(password.encode()).hexdigest()
 
     usernames = ['yinan', 'alayna', 'jim', 'alex']
-    users = []
+    users = dict()
     for username in usernames:
-        users.append(User(username, hash_password(f"{username}_pass")))
+        user = User(username, hash_password(f"{username}_pass"))
+        users[user.uid] = user
 
-    with open("server/data/users.json", "w") as f:
+    with open("server/data/user.json", "w") as f:
         json.dump(users, f, default=object_to_dict_recursive, indent=4) 
 
 
