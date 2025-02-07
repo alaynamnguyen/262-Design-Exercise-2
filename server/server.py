@@ -8,7 +8,7 @@ from controller.login import handle_login_request
 
 # Load config
 config = configparser.ConfigParser()
-config.read("../config.ini")
+config.read("config.ini")
 
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])

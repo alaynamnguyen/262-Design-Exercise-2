@@ -7,19 +7,27 @@ A Python server that handles multiple clients, supporting:
 
 ## Usage
 
-1. Start the server:
+1. Configure PYTHONPATH:
+
+    Navigate to `262-Design-Exercise-1` directory.
+
+    ```bash
+    export PYTHONPATH="$PWD"
+    ```
+
+2. Start the server:
 
     ```bash
     python server.py
     ```
 
-2. Start a client:
+3. Start a client:
 
     ```bash
     python client.py
     ```
 
-3. Enter commands:
+4. Enter commands:
 
     ```bash
     > count hello world
