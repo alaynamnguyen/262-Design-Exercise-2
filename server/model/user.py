@@ -67,7 +67,7 @@ class User:
         """
         Returns a string representation of the user.
         """
-        return f"User(id={self.id}, username={self.username}, conversations={self.conversations})"
+        return f"User(id={self.uid}, username={self.username}, conversations={self.conversations})"
     
     # def object_to_dict_recursive(obj):
     # """Recursively converts objects to dictionaries, handling nested objects."""

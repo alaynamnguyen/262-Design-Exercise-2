@@ -65,6 +65,7 @@ def service_connection(key, mask):
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
                 handle_login_request(data, message, accounts_dict, users)
+                print("Accounts", accounts_dict, "Users", users)
             # TODO handle the other types of tasks
             # elif message == "count":
             #     data.outb += str(len(message.split())).encode("utf-8")
