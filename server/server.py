@@ -31,7 +31,6 @@ for account in hardcoded_accounts:
     user = User(username=account[0], password=account[1])
     accounts_dict[user.uid] = { "username": account[0], "password": hash_password(account[1]) }
 print("Accounts", list_accounts(accounts_dict))
-print("Accounts", list_accounts(accounts_dict))
 # TODO END get rid of this hardcoded code
 
 def trans_to_pig_latin(text):
@@ -69,14 +68,6 @@ def service_connection(key, mask):
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
-                handle_login_request(data, message, accounts_dict)
-            elif message["task"] == "list-accounts":
-                print("Calling list_accounts")
-                response = {
-                    "task": "list-accounts-reply",
-                    "accounts": list_accounts(accounts_dict, wildcard=message["wildcard"])
-                }
-                data.outb += json.dumps(response).encode("utf-8")
                 handle_login_request(data, message, accounts_dict)
             elif message["task"] == "list-accounts":
                 print("Calling list_accounts")

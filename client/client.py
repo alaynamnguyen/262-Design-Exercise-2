@@ -23,6 +23,7 @@ def main():
             elif message.startswith("list-accounts"):
                 _, *wildcard = message.split()
                 wildcard = wildcard[0] if wildcard else "*"
+                print("Wildcard:", wildcard)
                 accounts.list_accounts(sock, wildcard)
                 # request = {"task": "list-accounts", "wildcard": wildcard}
                 # sock.sendall(json.dumps(request).encode("utf-8"))
