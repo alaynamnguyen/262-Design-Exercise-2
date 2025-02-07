@@ -12,20 +12,19 @@ def check_username_password(uid: str, password: str, accounts_dict: dict):
     print("Calling check_username_password")
     return accounts_dict[uid]["password"] == password
 
-def create_account(username: str, password: str, accounts_dict: dict, users: list):
+def create_account(username: str, password: str, accounts_dict: dict):
     print("Calling create_account")
     if check_username_exists(username, accounts_dict):
         return None
 
     user = User(username, password) 
-    users.append(user)
     accounts_dict[user.uid] = {
         "username": username,
         "password": password
     }
     return user.uid
 
-def handle_login_request(data, message, accounts_dict, users):
+def handle_login_request(data, message, accounts_dict):
     print("Calling handle_login_request")
     response = {}
     if message["task"] == "login-username":
@@ -56,7 +55,7 @@ def handle_login_request(data, message, accounts_dict, users):
                     "unread_messages": []
                 }
         else: # Username does not exist
-            uid = create_account(message["username"], message["password"], accounts_dict, users)
+            uid = create_account(message["username"], message["password"], accounts_dict)
             print("UID:", uid)
             response = {
                 "task": "login-password-reply",
