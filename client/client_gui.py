@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import socket
-from controller.login import check_username, login_user, create_account
+from client.controller.client_login import check_username, login_user, create_account
 import configparser
 
 # Load config

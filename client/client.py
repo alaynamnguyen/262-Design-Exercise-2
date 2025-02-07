@@ -1,6 +1,6 @@
 import socket
 import configparser
-from controller import communication, login
+from controller import client_login
 
 # Load config
 config = configparser.ConfigParser()
@@ -12,7 +12,7 @@ PORT = int(config["network"]["port"])
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((HOST, PORT))
-        login.login_user(sock)
+        client_login.login_user(sock)
         print("Connected to the server. Type 'count <words>' or 'translate <word>'")
         
         while True:

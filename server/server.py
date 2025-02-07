@@ -4,7 +4,7 @@ import types
 import configparser
 import json
 from model import User
-
+from controller.login import handle_login_request
 
 # Load config
 config = configparser.ConfigParser()
@@ -29,30 +29,6 @@ for account in hardcoded_accounts:
 print("Accounts:", accounts_dict)
 # TODO END get rid of this hardcoded code
 
-def check_username_exists(username: str):
-    print("Calling check_username_exists")
-    for uid, info in accounts_dict.items():
-        if info["username"] == username:
-            return uid
-    return None
-
-def check_username_password(uid: str, password: str):
-    print("Calling check_username_password")
-    return accounts_dict[uid]["password"] == password
-
-def create_account(username: str, password: str):
-    print("Calling create_account")
-    if check_username_exists(username):
-        return None
-
-    user = User(username, password) 
-    users.append(user)
-    accounts_dict[user.uid] = {
-        "username": username,
-        "password": password
-    }
-    return user.uid
-
 def trans_to_pig_latin(text):
     words = text.split()
     pig_latin_words = []
@@ -62,48 +38,6 @@ def trans_to_pig_latin(text):
         else:
             pig_latin_words.append(word[1:] + word[0] + "ay")
     return " ".join(pig_latin_words)
-
-def handle_login_request(data, message):
-    print("Calling handle_login_request")
-    response = {}
-    if message["task"] == "login-username":
-        print("Handling login-username")
-        uid = check_username_exists(message["username"])
-        response = {
-            "task": "login-username-reply",
-            "username": message["username"], # TODO return uid instead?
-            "user_exists": uid is not None
-        }
-    elif message["task"] == "login-password":
-        print("Handling login-password")
-        
-        uid = check_username_exists(message["username"])
-        if uid: # Username exists
-            if check_username_password(uid, message["password"]): # Password is correct
-                response = {
-                    "task": "login-password-reply",
-                    "uid": uid,
-                    "login_success": True,
-                    "unread_messages": ["hey", "hi"]  # Placeholder for unread messages
-                }
-            else: # Password is incorrect
-                response = {
-                    "task": "login-password-reply",
-                    "uid": uid,
-                    "login_success": False,
-                    "unread_messages": []
-                }
-        else: # Username does not exist
-            uid = create_account(message["username"], message["password"])
-            print("UID:", uid)
-            response = {
-                "task": "login-password-reply",
-                "uid": uid,
-                "login_success": True,
-                "unread_messages": []
-            }
-
-    data.outb += json.dumps(response).encode("utf-8")
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()
@@ -130,7 +64,7 @@ def service_connection(key, mask):
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
-                handle_login_request(data, message)
+                handle_login_request(data, message, accounts_dict, users)
             # TODO handle the other types of tasks
             # elif message == "count":
             #     data.outb += str(len(message.split())).encode("utf-8")
