@@ -1,6 +1,20 @@
 import uuid
-from server.read_write import *
 import json
+
+# Recursive function for object to dict
+def object_to_dict_recursive(obj):
+    """Recursively converts objects to dictionaries."""
+    if hasattr(obj, "__dict__"):
+        return {key: object_to_dict_recursive(value) for key, value in vars(obj).items()}
+    return obj
+
+# Recursive function for dict to object
+def dict_to_object_recursive(dct, cls):
+    """Converts a dictionary back to an object of type cls."""
+    obj = cls.__new__(cls)  # Create an empty instance
+    for key, value in dct.items():
+        setattr(obj, key, dict_to_object_recursive(value, globals().get(cls.__name__, object)) if isinstance(value, dict) else value)
+    return obj
 
 class User:
     """
@@ -83,7 +97,13 @@ if __name__ == "__main__":
         user = User(username, hash_password(f"{username}_pass"))
         users[user.uid] = user
 
+    print(users)
     with open("server/data/user.json", "w") as f:
-        json.dump(users, f, default=object_to_dict_recursive, indent=4) 
+        json.dump(users, f, default=object_to_dict_recursive, indent=4)
 
+    with open("server/data/user.json", "r") as f:
+        users = json.load(f)
+
+    users = dict_to_object_recursive(users, User)
+    print(users)
 
