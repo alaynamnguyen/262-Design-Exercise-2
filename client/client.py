@@ -4,7 +4,7 @@ from controller import communication, login
 
 # Load config
 config = configparser.ConfigParser()
-config.read("../config.ini")
+config.read("config.ini")
 
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])

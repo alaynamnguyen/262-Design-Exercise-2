@@ -44,24 +44,45 @@ def login_user(sock):
                 else:
                     print("Failed to create account. Please try again.")
 
-# def login_user(sock, username, password, create_account=False):
+# def check_username(sock, username):
 #     """
-#     Handles the login and registration process for a user.
+#     Checks if the username exists on the server.
+
+#     Args:
+#         sock (socket.socket): The socket connected to the server.
+#         username (str): The username to check.
+
+#     Returns:
+#         dict: The response from the server.
+#     """
+#     return build_and_send_task(sock, "login-username", username=username)
+
+# def login_user(sock, username, password):
+#     """
+#     Attempts to log in the user with the given username and password.
 
 #     Args:
 #         sock (socket.socket): The socket connected to the server.
 #         username (str): The username of the user.
 #         password (str): The password of the user.
-#         create_account (bool): Whether to create a new account if the username does not exist.
 
 #     Returns:
 #         dict: The response from the server.
 #     """
 #     hashed_password = hash_password(password)
-#     if create_account:
-#         response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
-#     else:
-#         response = build_and_send_task(sock, "login-username", username=username)
-#         if response["user_exists"]:
-#             response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
-#     return response
+#     return build_and_send_task(sock, "login-password", username=username, password=hashed_password)
+
+# def create_account(sock, username, password):
+#     """
+#     Attempts to create a new account with the given username and password.
+
+#     Args:
+#         sock (socket.socket): The socket connected to the server.
+#         username (str): The username of the user.
+#         password (str): The password of the user.
+
+#     Returns:
+#         dict: The response from the server.
+#     """
+#     hashed_password = hash_password(password)
+#     return build_and_send_task(sock, "login-password", username=username, password=hashed_password)
