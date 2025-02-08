@@ -1,12 +1,12 @@
 import fnmatch
 
-def list_accounts(accounts_dict: dict, wildcard: str = "*"):
+def list_accounts(users_dict: dict, wildcard: str = "*"):
     """
     Lists all accounts in the accounts dictionary.
 
     Parameters:
     ----------
-    accounts_dict : dict
+    users_dict : dict
         A dictionary of accounts.
 
     Returns:
@@ -14,7 +14,8 @@ def list_accounts(accounts_dict: dict, wildcard: str = "*"):
     list
         A list of all accounts.
     """
-    accounts = [account['username'] for account in accounts_dict.values()]
+    accounts = [user.username for user in users_dict.values()]
     if wildcard:
+        print("Wildcard:", wildcard, "Accounts:", accounts)
         accounts = fnmatch.filter(accounts, wildcard)
     return accounts
