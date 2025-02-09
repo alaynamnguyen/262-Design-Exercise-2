@@ -28,7 +28,7 @@ def login_user(sock):
 
                 if response["login_success"]:
                     print(f"Login successful. You have {len(response['unread_messages'])} unread messages.")
-                    return
+                    break
                 else:
                     print("Incorrect password. Please try again.")
         else: # Create a new account
@@ -40,9 +40,11 @@ def login_user(sock):
 
                 if response["login_success"]:
                     print("Account created successfully.")
-                    return
+                    break
                 else:
                     print("Failed to create account. Please try again.")
+        
+        return response["uid"]
 
 # def check_username(sock, username):
 #     """

@@ -1,6 +1,6 @@
 from model import Message
 
-def send_message(sender, receiver, text, users_dict, messages_dict, timestamp): 
+def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp): 
     """
     Sends a message to the server.
 
@@ -8,24 +8,22 @@ def send_message(sender, receiver, text, users_dict, messages_dict, timestamp):
         message (dict): The message to send to the server.
     """
 
-    # Create message object, receiver_read is False by default
-    message = Message(sender=sender, receiver=receiver, text=text, timestamp=timestamp)
-    
-    sender_id = None
-    receiver_id = None
+    receiver_uid = None
     for uid, user in users_dict.items():
-        if user.username == sender:
-            sender_id = uid
-        if user.username == receiver:
-            receiver_id = uid
+        if user.username == receiver_username:
+            receiver_uid = uid
 
-    if sender_id is None or receiver_id is None:
+    if receiver_uid is None:
+        print("Receiver does not exist.")
         return False
+
+    # Create message object, receiver_read is False by default
+    message = Message(sender=sender_uid, receiver=receiver_uid, text=text, timestamp=timestamp)
     
     # Update runtime storage
     messages_dict[message.mid] = message
-    users_dict[sender_id].sent_messages.append(message.mid)
-    users_dict[receiver_id].received_messages.append(message.mid)
+    users_dict[sender_uid].sent_messages.append(message.mid)
+    users_dict[receiver_uid].received_messages.append(message.mid)
 
     # TODO: Wrap with try-except?
     # TODO: Send to receiver if receiver online

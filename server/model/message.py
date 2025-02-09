@@ -56,7 +56,7 @@ if __name__ == "__main__":
     def hash_password(password):
         return hashlib.sha256(password.encode()).hexdigest()
 
-    senders = ['yinan', 'alayna', 'jim', 'alex']  # NOTE: Use uid instead of username
+    senders = ['yinan', 'alayna', 'jim', 'alex']  # NOTE: Dummy code, actual code uses uid instead of username
     receivers = ['alayna', 'yinan', 'alex', 'jim']
     texts = list()
     for sender, receiver in zip(senders, receivers):
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         messages_dict[message.mid] = message
     print(messages_dict)
     print()
-    
+
     with open("server/data/message.json", "w") as f:
         json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
         

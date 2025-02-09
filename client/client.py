@@ -13,8 +13,8 @@ PORT = int(config["network"]["port"])
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((HOST, PORT))
-        client_login.login_user(sock)
-        print("Connected to the server. Type 'count <words>' or 'translate <word>'")
+        client_uid = client_login.login_user(sock)
+        print(f"{client_uid} connected to the server. Type 'count <words>' or 'translate <word>'")
         
         while True:
             message = input("> ")
@@ -31,8 +31,10 @@ def main():
                 _, receiver, *text = message.split()
                 text = " ".join(text)
                 print("Sending message: ", text)
-                communication.build_and_send_task(sock, "send-message", sender="yinan", receiver=receiver, text=text, timestamp=str(datetime.now()))
+                communication.build_and_send_task(sock, "send-message", sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
                 # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
+            elif message.startswith("get-sent-messages"):  # TODO: not done, dont run this
+                communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
             else:
                 sock.sendall(message.encode("utf-8"))
             # TODO modify this part to send back task structured messages
