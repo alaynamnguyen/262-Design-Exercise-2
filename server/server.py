@@ -3,7 +3,7 @@ import selectors
 import types
 import configparser
 import json
-from model import User
+from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts
 
@@ -52,9 +52,16 @@ with open("server/data/user.json", "r") as f:
 for k, v in users.items():
     user = dict_to_object_recursive(v, User)
     users_dict[user.uid] = user
-print("Accounts", list_accounts(users_dict))
+print("Accounts", list_accounts(users_dict)) 
 
-# TODO: message_dict[mid] = message_obj 
+# Message dict
+messages_dict = dict()
+with open("server/data/message.json", "r") as f:
+    messages = json.load(f)
+for k, v in messages.items():
+    message = dict_to_object_recursive(v, Message)
+    messages_dict[message.mid] = message
+print("Messages", messages_dict)
 
 # TODO END get rid of this hardcoded code
 
