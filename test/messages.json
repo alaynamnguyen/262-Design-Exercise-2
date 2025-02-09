@@ -31,20 +31,12 @@
         "timestamp": "2025-02-08 19:25:20.149473",
         "receiver_read": false
     },
-    "1adc3864-7f62-4bed-a3b4-c82fc3b4486a": {
-        "sender": "3c9cd41a-97c2-40c9-bef0-d15db9577f1f",
-        "receiver": "75284b3b-c68f-4492-b30a-dce841e4b500",
-        "text": "helloooooooo",
-        "mid": "1adc3864-7f62-4bed-a3b4-c82fc3b4486a",
-        "timestamp": "2025-02-09 13:58:40.299977",
-        "receiver_read": false
-    },
-    "e5e09f04-f026-4855-86b1-56be346b6683": {
-        "sender": "3c9cd41a-97c2-40c9-bef0-d15db9577f1f",
-        "receiver": "75284b3b-c68f-4492-b30a-dce841e4b500",
-        "text": "helloooooooo",
-        "mid": "e5e09f04-f026-4855-86b1-56be346b6683",
-        "timestamp": "2025-02-09 13:59:17.686370",
+    "d16a8376-00e7-4509-be2a-c34a291ea212": {
+        "sender": "75284b3b-c68f-4492-b30a-dce841e4b500",
+        "receiver": "3c9cd41a-97c2-40c9-bef0-d15db9577f1f",
+        "text": "hey there",
+        "mid": "d16a8376-00e7-4509-be2a-c34a291ea212",
+        "timestamp": "2025-02-09 14:07:36.678212",
         "receiver_read": false
     }
 }

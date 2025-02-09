@@ -33,8 +33,10 @@ def main():
                 print("Sending message: ", text)
                 communication.build_and_send_task(sock, "send-message", sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
                 # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
-            elif message.startswith("get-sent-messages"):  # TODO: not done, dont run this
+            elif message.startswith("get-sent-messages"):
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
+            elif message.startswith("get-received-messages"):
+                communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
             else:
                 print("Invalid command. Please try again.")
                 # sock.sendall(message.encode("utf-8"))

@@ -42,3 +42,16 @@ def get_sent_messages_id(uid, users_dict):
         list: The list of message IDs.
     """
     return users_dict[uid].sent_messages
+
+def get_received_messages_id(uid, users_dict):
+    """
+    Gets the message IDs of the messages received by the user.
+
+    Args:
+        uid (str): The unique identifier of the user.
+        users_dict (dict): The dictionary of users.
+
+    Returns:
+        list: The list of message IDs.
+    """
+    return users_dict[uid].received_messages

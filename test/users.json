@@ -4,12 +4,11 @@
         "username": "yinan",
         "password": "c4bd3d5cba95c4978eb3ea87fa44ddf259346f276f0ad1800d721661f285728b",
         "received_messages": [
-            "211aaf91-4606-467d-a3a2-640a69fd4377"
+            "211aaf91-4606-467d-a3a2-640a69fd4377",
+            "d16a8376-00e7-4509-be2a-c34a291ea212"
         ],
         "sent_messages": [
-            "9f8dc300-6e37-479c-9e47-745c9c6d64e2",
-            "1adc3864-7f62-4bed-a3b4-c82fc3b4486a",
-            "e5e09f04-f026-4855-86b1-56be346b6683"
+            "9f8dc300-6e37-479c-9e47-745c9c6d64e2"
         ]
     },
     "75284b3b-c68f-4492-b30a-dce841e4b500": {
@@ -17,12 +16,11 @@
         "username": "alayna",
         "password": "3f5be9e1c646a0b0c0debc04a4b4b3cd14e02172368342fa2b5fade0317b9066",
         "received_messages": [
-            "9f8dc300-6e37-479c-9e47-745c9c6d64e2",
-            "1adc3864-7f62-4bed-a3b4-c82fc3b4486a",
-            "e5e09f04-f026-4855-86b1-56be346b6683"
+            "9f8dc300-6e37-479c-9e47-745c9c6d64e2"
         ],
         "sent_messages": [
-            "211aaf91-4606-467d-a3a2-640a69fd4377"
+            "211aaf91-4606-467d-a3a2-640a69fd4377",
+            "d16a8376-00e7-4509-be2a-c34a291ea212"
         ]
     },
     "2d1c3084-33d3-4f17-a3f7-a81002524fcd": {

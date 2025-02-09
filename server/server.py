@@ -6,7 +6,7 @@ import json
 from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts
-from controller.messages import send_message, get_sent_messages_id
+from controller.messages import send_message, get_sent_messages_id, get_received_messages_id
 
 # TODO put these functions somewhere else
 # Recursive function for object to dict
@@ -130,6 +130,14 @@ def service_connection(key, mask):
                     "task": "get-sent-messages-reply",
                     "uid": message["sender"],
                     "mids": get_sent_messages_id(message["sender"], users_dict)
+                }
+                data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "get-received-messages":
+                print(f"Get received messages request from {message['sender']}")
+                response = {
+                    "task": "get-received-messages-reply",
+                    "uid": message["sender"],
+                    "mids": get_received_messages_id(message["sender"], users_dict)
                 }
                 data.outb += json.dumps(response).encode("utf-8")
             
