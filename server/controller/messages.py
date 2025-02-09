@@ -31,6 +31,25 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 
     return True
 
+def delete_messages(users_dict, messages_dict, mids):
+    deleted_mids = []
+    success = True
+    for mid in mids:
+        if mid in messages_dict:
+            message = messages_dict[mid]
+            # Remove message from sender
+            users_dict[message.sender].sent_messages.remove(mid)
+            # Remove message from receiver
+            users_dict[message.receiver].received_messages.remove(mid)
+            # Remove message from messages_dict
+            del messages_dict[mid]
+            deleted_mids.append(mid)
+        else:
+            print(f"Message {mid} does not exist.")
+            success = False
+
+    return success, deleted_mids
+
 def get_sent_messages_id(uid, users_dict):
     """
     Gets the message IDs of the messages sent by the user.

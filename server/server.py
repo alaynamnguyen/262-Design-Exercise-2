@@ -6,7 +6,7 @@ import json
 from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts, delete_account
-from controller.messages import send_message, get_sent_messages_id, get_received_messages_id
+from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages
 
 # TODO put these functions somewhere else
 # Recursive function for object to dict
@@ -131,13 +131,12 @@ def service_connection(key, mask):
                 }
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "delete-messages":
-                print("Delete messages request: ", message)
-                to_delete_mids = message["mids"]
-
+                print("Delete messages request:", message)
+                success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"])
                 response = {
                     "task": "delete-messages-reply",
-                    "success": False # TODO update
-                    # "accounts": list_accounts(users_dict, wildcard=message["wildcard"])
+                    "deleted-mids": deleted_mids,
+                    "success": success
                 }
                 # TODO: think about the smartest way to update other users loggedin if a message related to them is deleted
                 data.outb += json.dumps(response).encode("utf-8")

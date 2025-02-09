@@ -6,7 +6,8 @@ def delete_messages(sock, mids):
     response = build_and_send_task(sock, "delete-messages", mids=mids)
 
     if response["success"]:
-        print("Messages successfully deleted:", mids)
+        deleted_mids = response["deleted-mids"]
+        print("Messages successfully deleted:", deleted_mids)
         # TODO: update UI to remove the deleted messages
         return
     else:
