@@ -66,6 +66,9 @@ print("Messages", messages_dict)
 
 # TODO END get rid of this hardcoded code
 
+# Keep track of connected, logged in clients by uid
+connected_clients = dict() # uid --> addr
+
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
@@ -86,12 +89,19 @@ def service_connection(key, mask):
             sel.unregister(sock)
             sock.close()
 
+            for client_uid, client_addr in connected_clients.items():
+                if client_addr == data.addr: # Only remove the client who disconnected
+                    print(f"Removing {client_uid} from connected_clients")
+                    connected_clients.pop(client_uid)
+                    break  # Stop after removing the correct UID
+            # print("Connected clients:", connected_clients.keys())
+
         # print("Received DATA:", data.inb)
         if data.inb:
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
-                handle_login_request(data, message, users_dict)
+                handle_login_request(data, message, users_dict, connected_clients)
             elif message["task"] == "list-accounts":
                 print("Calling list_accounts")
                 response = {
