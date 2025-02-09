@@ -13,6 +13,7 @@ def send_message(sock, message):
     """
     sock.sendall(json.dumps(message).encode("utf-8"))
     response = sock.recv(1024).decode("utf-8")
+    print("Response from server: ", response)
     return json.loads(response)
 
 def build_and_send_task(sock, task, **kwargs):

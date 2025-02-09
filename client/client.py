@@ -1,7 +1,7 @@
 import socket
 import configparser
-from controller import client_login, accounts
-import json
+from controller import client_login, accounts, communication
+from datetime import datetime
 
 # Load config
 config = configparser.ConfigParser()
@@ -27,6 +27,11 @@ def main():
                 accounts.list_accounts(sock, wildcard)
                 # request = {"task": "list-accounts", "wildcard": wildcard}
                 # sock.sendall(json.dumps(request).encode("utf-8"))
+            elif message.startswith("send-message"):
+                _, receiver, *text = message.split()
+                text = " ".join(text)
+                print("Sending message: ", text)
+                communication.build_and_send_task(sock, "send-message", sender="yinan", receiver=receiver, text=text, timestamp=str(datetime.now()))
             else:
                 sock.sendall(message.encode("utf-8"))
             # TODO modify this part to send back task structured messages
@@ -36,3 +41,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# send-message alayna helloooooooo

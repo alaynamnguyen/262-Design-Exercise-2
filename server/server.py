@@ -6,6 +6,7 @@ import json
 from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts
+from controller.messages import send_message
 
 # TODO put these functions somewhere else
 # Recursive function for object to dict
@@ -108,15 +109,31 @@ def service_connection(key, mask):
                     "accounts": list_accounts(users_dict, wildcard=message["wildcard"])
                 }
                 data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "send-message":
+                print("Send message request: ", message)
+                message_sent = send_message(message["sender"], message["receiver"], message["text"], users_dict, messages_dict, timestamp=message["timestamp"])
+                # TODO: For testing only, delete this later
+                with open("test/users.json", "w") as f:
+                    json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
+                with open("test/messages.json", "w") as f:
+                    json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
+
+                response = {
+                    "task": "send-message-reply",
+                    "message_sent_status": message_sent
+                }
+                data.outb += json.dumps(response).encode("utf-8")
+                # TODO: Notify receiver and sender of message update and refresh their message list
+            
             # TODO handle the other types of tasks
-            # elif message == "count":
-            #     data.outb += str(len(message.split())).encode("utf-8")
             data.inb = b""
         
     if mask & selectors.EVENT_WRITE:
         if data.outb:
+            print("Sending DATA: ", data.outb)
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
+            print("Sent DATA: ", data.outb)
 
 if __name__ == "__main__":
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

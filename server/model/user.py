@@ -44,46 +44,14 @@ class User:
         self.uid = uid if uid else str(uuid.uuid4())
         self.username = username
         self.password = password
-        self.messages = list()
-
-    def add_messages(self, message_id):
-        """
-        Adds a message ID to the user's messages.
-
-        Parameters:
-        ----------
-        message_id : str
-            The ID of the message to be added.
-        """
-        self.messages.add(message_id)
-
-    def get_messages(self):
-        """
-        Retrieves all message IDs from the user's messages.
-
-        Returns:
-        -------
-        set
-            A set of all message IDs.
-        """
-        return self.messages
-
-    def remove_message(self, message_id):
-        """
-        Removes a message ID from the user's messages.
-
-        Parameters:
-        ----------
-        message_id : str
-            The ID of the message to remove.
-        """
-        self.messages.discard(message_id)
+        self.received_messages = list()
+        self.sent_messages = list()
 
     def __repr__(self):
         """
         Returns a string representation of the user.
         """
-        return f"User(uid={self.uid}, username={self.username}, password={self.password}, messages={self.messages})"
+        return f"User(uid={self.uid}, username={self.username}, password={self.password}, received_messages={self.received_messages}, sent_messages={self.sent_messages})"
     
 if __name__ == "__main__":
     import hashlib
