@@ -30,7 +30,7 @@ class User:
         A set to store user message IDs.
     """
 
-    def __init__(self, username, password, uid=None):
+    def __init__(self, username, password, uid=None, active=True):
         """
         Constructs all the necessary attributes for the user object.
 
@@ -46,12 +46,13 @@ class User:
         self.password = password
         self.received_messages = list()
         self.sent_messages = list()
+        self.active = active
 
     def __repr__(self):
         """
         Returns a string representation of the user.
         """
-        return f"User(uid={self.uid}, username={self.username}, password={self.password}, received_messages={self.received_messages}, sent_messages={self.sent_messages})"
+        return f"User(uid={self.uid}, username={self.username}, password={self.password}, received_messages={self.received_messages}, sent_messages={self.sent_messages}, active={self.active})"
     
 if __name__ == "__main__":
     import hashlib

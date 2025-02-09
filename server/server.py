@@ -5,7 +5,7 @@ import configparser
 import json
 from model import User, Message
 from controller.login import handle_login_request
-from controller.accounts import list_accounts
+from controller.accounts import list_accounts, delete_account
 from controller.messages import send_message, get_sent_messages_id, get_received_messages_id
 
 # TODO put these functions somewhere else
@@ -66,16 +66,6 @@ print("Messages", messages_dict)
 
 # TODO END get rid of this hardcoded code
 
-def trans_to_pig_latin(text):
-    words = text.split()
-    pig_latin_words = []
-    for word in words:
-        if word[0] in "aeiou":
-            pig_latin_words.append(word + "way")
-        else:
-            pig_latin_words.append(word[1:] + word[0] + "ay")
-    return " ".join(pig_latin_words)
-
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
@@ -96,7 +86,7 @@ def service_connection(key, mask):
             sel.unregister(sock)
             sock.close()
 
-        print("Received DATA:", data.inb)
+        # print("Received DATA:", data.inb)
         if data.inb:
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
@@ -140,8 +130,25 @@ def service_connection(key, mask):
                     "mids": get_received_messages_id(message["sender"], users_dict)
                 }
                 data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "delete-messages":
+                print("Delete messages request: ", message)
+                to_delete_mids = message["mids"]
+
+                response = {
+                    "task": "delete-messages-reply",
+                    "success": False # TODO update
+                    # "accounts": list_accounts(users_dict, wildcard=message["wildcard"])
+                }
+                # TODO: think about the smartest way to update other users loggedin if a message related to them is deleted
+                data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "delete-account":
+                print("Delete account request:", message)
+                response = {
+                    "task": "delete-account-reply",
+                    "success": delete_account(users_dict, message["uid"])
+                }
+                data.outb += json.dumps(response).encode("utf-8")
             
-            # TODO handle the other types of tasks
             data.inb = b""
         
     if mask & selectors.EVENT_WRITE:
@@ -149,7 +156,6 @@ def service_connection(key, mask):
             print("Sending DATA: ", data.outb)
             sent = sock.send(data.outb)
             data.outb = data.outb[sent:]
-            print("Sent DATA: ", data.outb)
 
 if __name__ == "__main__":
     lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

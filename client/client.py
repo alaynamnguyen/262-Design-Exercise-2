@@ -1,6 +1,6 @@
 import socket
 import configparser
-from controller import client_login, accounts, communication
+from controller import client_login, accounts, communication, client_messages
 from datetime import datetime
 
 # Load config
@@ -23,23 +23,28 @@ def main():
             elif message.startswith("list-accounts"):
                 _, *wildcard = message.split()
                 wildcard = wildcard[0] if wildcard else "*"
-                print("Wildcard:", wildcard)
                 accounts.list_accounts(sock, wildcard)
-                # request = {"task": "list-accounts", "wildcard": wildcard}
-                # sock.sendall(json.dumps(request).encode("utf-8"))
             elif message.startswith("send-message"):
                 _, receiver, *text = message.split()
                 text = " ".join(text)
-                print("Sending message: ", text)
+                print("Sending message:", text)
                 communication.build_and_send_task(sock, "send-message", sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
                 # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
             elif message.startswith("get-sent-messages"):
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
+            elif message.startswith("delete-messages"):
+                _, *mids = message.split()
+                mids = [int(mid) for mid in mids] # TODO: later sub this with mids of selected messages from UI
+                client_messages.delete_messages(sock, mids)
+            elif message.startswith("delete-account"):
+                success = accounts.delete_account(sock, client_uid)
+                if success:
+                    print("Account successfully deleted.")
+                    break
             elif message.startswith("get-received-messages"):
                 communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
             else:
-                print("Invalid command. Please try again.")
-                # sock.sendall(message.encode("utf-8"))
+                sock.sendall(message.encode("utf-8"))
             # TODO modify this part to send back task structured messages
             # sock.sendall(message.encode("utf-8"))
             # response = sock.recv(1024).decode("utf-8")

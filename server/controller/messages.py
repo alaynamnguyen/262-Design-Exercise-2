@@ -19,7 +19,8 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 
     # Create message object, receiver_read is False by default
     message = Message(sender=sender_uid, receiver=receiver_uid, text=text, timestamp=timestamp)
-    
+    print("Message id:", message.mid)
+
     # Update runtime storage
     messages_dict[message.mid] = message
     users_dict[sender_uid].sent_messages.append(message.mid)

@@ -4,7 +4,7 @@ from model import User
 def check_username_exists(username: str, users_dict: dict):
     print("Calling check_username_exists")
     for uid, user in users_dict.items():
-        if user.username == username:
+        if user.username == username and user.active:
             return uid
     return None
 
