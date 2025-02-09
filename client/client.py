@@ -32,6 +32,8 @@ def main():
                 # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
             elif message.startswith("get-sent-messages"):
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
+            elif message.startswith("get-received-messages"):
+                communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
             elif message.startswith("delete-messages"):
                 _, *mids = message.split()
                 mids = [int(mid) for mid in mids] # TODO: later sub this with mids of selected messages from UI
@@ -41,14 +43,9 @@ def main():
                 if success:
                     print("Account successfully deleted.")
                     break
-            elif message.startswith("get-received-messages"):
-                communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
             else:
-                sock.sendall(message.encode("utf-8"))
-            # TODO modify this part to send back task structured messages
-            # sock.sendall(message.encode("utf-8"))
-            # response = sock.recv(1024).decode("utf-8")
-            # print("Server response:", response)
+                print("Invalid command. Please try again.")
+                # sock.sendall(message.encode("utf-8"))
 
 if __name__ == "__main__":
     main()
