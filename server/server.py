@@ -120,10 +120,10 @@ def service_connection(key, mask):
 
                 response = {
                     "task": "send-message-reply",
-                    "message_sent_status": message_sent
+                    "success": message_sent
                 }
                 data.outb += json.dumps(response).encode("utf-8")
-                # TODO: Notify receiver and sender of message update and refresh their message list
+                # TODO: deliver-message to receiver
             
             # TODO handle the other types of tasks
             data.inb = b""

@@ -32,6 +32,7 @@ def main():
                 text = " ".join(text)
                 print("Sending message: ", text)
                 communication.build_and_send_task(sock, "send-message", sender="yinan", receiver=receiver, text=text, timestamp=str(datetime.now()))
+                # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
             else:
                 sock.sendall(message.encode("utf-8"))
             # TODO modify this part to send back task structured messages

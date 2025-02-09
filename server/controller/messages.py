@@ -8,6 +8,7 @@ def send_message(sender, receiver, text, users_dict, messages_dict, timestamp):
         message (dict): The message to send to the server.
     """
 
+    # Create message object, receiver_read is False by default
     message = Message(sender=sender, receiver=receiver, text=text, timestamp=timestamp)
     
     sender_id = None
@@ -26,7 +27,8 @@ def send_message(sender, receiver, text, users_dict, messages_dict, timestamp):
     users_dict[sender_id].sent_messages.append(message.mid)
     users_dict[receiver_id].received_messages.append(message.mid)
 
-    # TODO: Notify receiver and sender of message update and refresh their message list
+    # TODO: Wrap with try-except?
+    # TODO: Send to receiver if receiver online
 
     return True
 
