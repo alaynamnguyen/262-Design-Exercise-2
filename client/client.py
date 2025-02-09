@@ -36,7 +36,8 @@ def main():
             elif message.startswith("get-sent-messages"):  # TODO: not done, dont run this
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
             else:
-                sock.sendall(message.encode("utf-8"))
+                print("Invalid command. Please try again.")
+                # sock.sendall(message.encode("utf-8"))
             # TODO modify this part to send back task structured messages
             # sock.sendall(message.encode("utf-8"))
             # response = sock.recv(1024).decode("utf-8")

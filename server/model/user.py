@@ -65,6 +65,15 @@ if __name__ == "__main__":
         user = User(username, hash_password(f"{username}_pass"))
         users[user.uid] = user
 
+    with open("server/data/message.json", "r") as f:
+        messages = json.load(f)
+    for user in users.values():
+        for mid, message in messages.items():
+            if message["sender"] == user.username:
+                user.sent_messages.append(mid)
+            if message["receiver"] == user.username:
+                user.received_messages.append(mid)
+
     print(users)
     print()
     with open("server/data/user.json", "w") as f:

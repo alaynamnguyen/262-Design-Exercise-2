@@ -30,3 +30,15 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 
     return True
 
+def get_sent_messages_id(uid, users_dict):
+    """
+    Gets the message IDs of the messages sent by the user.
+
+    Args:
+        uid (str): The unique identifier of the user.
+        users_dict (dict): The dictionary of users.
+
+    Returns:
+        list: The list of message IDs.
+    """
+    return users_dict[uid].sent_messages
