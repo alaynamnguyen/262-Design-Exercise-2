@@ -18,19 +18,6 @@ PORT = int(config["network"]["port"])
 
 sel = selectors.DefaultSelector()
 
-# TODO BEGIN get rid of this hardcoded code
-import hashlib
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-# Runtime storage
-# hardcoded_accounts = [("yinan", "pass1"), ("alayna", "pass2"), ("alex", "pass3")]
-# accounts_dict = dict()  # 
-# for account in hardcoded_accounts:
-#     user = User(username=account[0], password=account[1])
-#     accounts_dict[user.uid] = { "username": account[0], "password": hash_password(account[1]) }
-# print("Accounts", list_accounts(accounts_dict))
-
 # User dict
 users_dict = dict()
 with open("server/data/user.json", "r") as f:
@@ -48,8 +35,6 @@ for k, v in messages.items():
     message = dict_to_object_recursive(v, Message)
     messages_dict[message.mid] = message
 print("Messages", messages_dict)
-
-# TODO END get rid of this hardcoded code
 
 # Keep track of connected, logged in clients by uid
 connected_clients = dict() # uid --> addr

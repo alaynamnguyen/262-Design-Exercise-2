@@ -76,8 +76,6 @@ def get_message_by_mid(mid, messages_dict):
         print(f"Message {mid} does not exist.")
         return None  # TODO Handle missing message case
     
-# get-message-by-mid 230a64b0-f0e5-4b94-9f2e-4638005e99f8
-
 def get_sent_messages_id(uid, users_dict):
     """
     Gets the message IDs of the messages sent by the user.
