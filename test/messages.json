@@ -29,6 +29,6 @@
         "text": "alex->jim hi sent at 2025-02-08 19:25:20",
         "mid": "230a64b0-f0e5-4b94-9f2e-4638005e99f8",
         "timestamp": "2025-02-08 19:25:20.149473",
-        "receiver_read": false
+        "receiver_read": true
     }
 }

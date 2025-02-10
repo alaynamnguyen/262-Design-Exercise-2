@@ -13,3 +13,11 @@ def delete_messages(sock, mids):
     else:
         print("Failed to delete messages.")
         return # UI does not change
+    
+def mark_message_read(sock, mid):
+    print("Calling mark_message_read")
+
+    response = build_and_send_task(sock, "mark-message-read", mid=mid)
+
+    if response["success"]:
+        print("Message marked as read.")

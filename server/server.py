@@ -6,7 +6,7 @@ import json
 from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts, delete_account
-from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages
+from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages, mark_message_read
 
 # TODO put these functions somewhere else
 # Recursive function for object to dict
@@ -69,6 +69,13 @@ print("Messages", messages_dict)
 # Keep track of connected, logged in clients by uid
 connected_clients = dict() # uid --> addr
 
+# For ease of seeing that things are deleted/added properly
+def write_users_messages_json(users_dict, messages_dict):
+    with open("test/users.json", "w") as f:
+        json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
+    with open("test/messages.json", "w") as f:
+        json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
+
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
@@ -113,11 +120,7 @@ def service_connection(key, mask):
                 print("Send message request: ", message)
                 message_sent = send_message(message["sender"], message["receiver"], message["text"], users_dict, messages_dict, timestamp=message["timestamp"])
                 # TODO: For testing only, delete this later
-                with open("test/users.json", "w") as f:
-                    json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
-                with open("test/messages.json", "w") as f:
-                    json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
-
+                write_users_messages_json(users_dict, messages_dict)
                 response = {
                     "task": "send-message-reply",
                     "success": message_sent
@@ -140,6 +143,14 @@ def service_connection(key, mask):
                     "mids": get_received_messages_id(message["sender"], users_dict)
                 }
                 data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "mark-message-read":
+                print(f"Mark message read request for {message['mid']}")
+                response = {
+                    "task": "mark-message-read",
+                    "success": mark_message_read(messages_dict, message["mid"])
+                }
+                print("Updated message:", messages_dict[message["mid"]])
+                data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "delete-messages":
                 print("Delete messages request:", message)
                 success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"])
@@ -148,6 +159,7 @@ def service_connection(key, mask):
                     "deleted-mids": deleted_mids,
                     "success": success
                 }
+                write_users_messages_json(users_dict, messages_dict) # TODO remove once tested
                 # TODO: think about the smartest way to update other users loggedin if a message related to them is deleted
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "delete-account":
@@ -156,6 +168,7 @@ def service_connection(key, mask):
                     "task": "delete-account-reply",
                     "success": delete_account(users_dict, message["uid"])
                 }
+                write_users_messages_json(users_dict, messages_dict) # TODO remove once tested
                 data.outb += json.dumps(response).encode("utf-8")
             
             data.inb = b""

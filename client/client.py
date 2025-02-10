@@ -55,6 +55,9 @@ def main():
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
             elif message.startswith("get-received-messages"):
                 communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
+            elif message.startswith("mark-message-read"):
+                _, mid = message.split()
+                client_messages.mark_message_read(sock, mid)
             elif message.startswith("delete-messages"):
                 _, *mids = message.split() # TODO: later sub this with mids of selected messages from UI
                 client_messages.delete_messages(sock, mids)

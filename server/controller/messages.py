@@ -50,6 +50,14 @@ def delete_messages(users_dict, messages_dict, mids):
 
     return success, deleted_mids
 
+def mark_message_read(messages_dict, mid):
+    if mid in messages_dict:
+        messages_dict[mid].receiver_read = True
+        return True
+    else:
+        print(f"Failed to mark message read: message {mid} does not exist.")
+        return False
+
 def get_sent_messages_id(uid, users_dict):
     """
     Gets the message IDs of the messages sent by the user.
