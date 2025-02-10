@@ -31,12 +31,36 @@
         "timestamp": "2025-02-08 19:25:20.149473",
         "receiver_read": false
     },
-    "6d0f77a9-c2f3-4e40-95f7-af1b81f3c44f": {
+    "0cf29ffe-1883-480c-80fe-c237b5b02271": {
         "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
         "receiver": "371fb628-c002-42ac-94c8-99074adef005",
-        "text": "test",
-        "mid": "6d0f77a9-c2f3-4e40-95f7-af1b81f3c44f",
-        "timestamp": "2025-02-09 21:51:01.105084",
+        "text": "guess what",
+        "mid": "0cf29ffe-1883-480c-80fe-c237b5b02271",
+        "timestamp": "2025-02-09 22:58:26.268806",
+        "receiver_read": false
+    },
+    "72eec44d-c24f-4061-9795-a957c604c603": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "today is such a great day",
+        "mid": "72eec44d-c24f-4061-9795-a957c604c603",
+        "timestamp": "2025-02-09 22:58:36.475464",
+        "receiver_read": false
+    },
+    "4d990fae-f8fa-471c-b0ed-9d6c78995fe4": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "we don't have much time left",
+        "mid": "4d990fae-f8fa-471c-b0ed-9d6c78995fe4",
+        "timestamp": "2025-02-09 22:58:47.249144",
+        "receiver_read": false
+    },
+    "014ce660-ef7d-4480-8ccd-19487ec50cba": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "guess not",
+        "mid": "014ce660-ef7d-4480-8ccd-19487ec50cba",
+        "timestamp": "2025-02-09 22:58:55.485854",
         "receiver_read": false
     }
 }

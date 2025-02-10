@@ -20,7 +20,8 @@ sel = selectors.DefaultSelector()
 
 # User dict
 users_dict = dict()
-with open("server/data/user.json", "r") as f:
+# TODO use data instead of test
+with open("server/test/user.json", "r") as f:
         users = json.load(f)
 for k, v in users.items():
     user = dict_to_object_recursive(v, User)
@@ -29,7 +30,8 @@ print("Accounts", list_accounts(users_dict))
 
 # Message dict
 messages_dict = dict()
-with open("server/data/message.json", "r") as f:
+# TODO use data instead of test
+with open("server/test/message.json", "r") as f:
     messages = json.load(f)
 for k, v in messages.items():
     message = dict_to_object_recursive(v, Message)
@@ -41,9 +43,9 @@ connected_clients = dict() # uid --> addr
 
 # For ease of seeing that things are deleted/added properly
 def write_users_messages_json(users_dict, messages_dict):
-    with open("test/users.json", "w") as f:
+    with open("server/test/user.json", "w") as f:
         json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
-    with open("test/messages.json", "w") as f:
+    with open("server/test/message.json", "w") as f:
         json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
 
 def accept_wrapper(sock):
@@ -175,7 +177,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         # Save runtime storage to disk before exiting
         # TODO Uncomment to persist runtime storage
-        # write_users_messages_json(users_dict, messages_dict)
+        write_users_messages_json(users_dict, messages_dict)
         print("Caught keyboard interrupt, exiting")
     finally:
         sel.close()
