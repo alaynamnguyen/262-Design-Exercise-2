@@ -2,8 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, Scrollbar
 import socket
 import configparser
-from controller import client_login, communication, client_messages, accounts
-from datetime import datetime
+from controller import client_login, communication, client_messages
 
 # Load config
 config = configparser.ConfigParser()
@@ -26,6 +25,7 @@ class ChatApp:
         self.password = tk.StringVar()
         self.user_exists = False
         self.client_uid = None  # Store user ID after login
+
         self.selected_messages = set()  # Store selected messages for deletion
         self.selected_recipient = tk.StringVar()  # Store selected recipient for new messages
         self.create_login_screen()
@@ -35,7 +35,7 @@ class ChatApp:
         self.clear_screen()
 
         self.login_frame = tk.Frame(self.root)
-        self.login_frame.pack(expand=True)  # Centering
+        self.login_frame.pack(expand=True)
 
         tk.Label(self.login_frame, text="Welcome", font=("Arial", 16, "bold")).pack(pady=10)
         tk.Label(self.login_frame, text="Username:", font=("Arial", 12)).pack()
@@ -113,7 +113,7 @@ class ChatApp:
 
     def delete_account(self):
         """Deletes the user account."""
-        response = accounts.delete_account(self.sock, self.client_uid)
+        response = client_messages.delete_account(self.sock, self.client_uid)
         if response["success"]:
             messagebox.showinfo("Success", "Account successfully deleted.")
             self.create_login_screen()
@@ -168,101 +168,12 @@ class ChatApp:
             messagebox.showerror("Error", "Message cannot be empty.")
             return
 
-        communication.build_and_send_task(self.sock, "send-message", sender=self.client_uid, receiver=recipient, text=message_text, timestamp=str(datetime.now()))
+        communication.build_and_send_task(self.sock, "send-message", sender=self.client_uid, receiver=recipient, text=message_text)
         messagebox.showinfo("Success", "Message sent successfully!")
         self.load_received_messages()
 
-    def load_received_messages(self):
-        """Fetch and display received messages."""
-        self.clear_content()
-
-        response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
-        mids = response["mids"]
-
-        self.messages_frame = tk.Frame(self.home_frame)  # Use self.home_frame
-        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-        unread_count = 0
-
-        for mid in mids:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
-            message = msg_response["message"]
-
-            if not message["receiver_read"]:
-                unread_count += 1
-
-            self.display_message(message, received=True)
-
-        tk.Label(self.home_frame, text=f"{unread_count} unread messages", font=("Arial", 14, "bold")).pack()
-
-        tk.Button(self.home_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(pady=5)
-
-    def load_sent_messages(self):
-        """Fetch and display sent messages."""
-        self.clear_content()
-
-        response = communication.build_and_send_task(self.sock, "get-sent-messages", sender=self.client_uid)
-        mids = response["mids"]
-
-        self.messages_frame = tk.Frame(self.home_frame)  # Use self.home_frame
-        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-        for mid in mids:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
-            message = msg_response["message"]
-            self.display_message(message, received=False)
-
-        tk.Button(self.home_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(pady=5)
-
-    def display_message(self, message, received=True):
-        """Displays a single message in the UI."""
-        frame = tk.Frame(self.messages_frame, bg="lightgray", padx=5, pady=5)
-        frame.pack(fill=tk.X, pady=5)
-
-        sender = "From" if received else "To"
-        status = "🔴" if received and not message["receiver_read"] else ""
-
-        header = f"{status} {sender} {message['sender'] if received else message['receiver']}\n{message['timestamp']}"
-        tk.Label(frame, text=header, font=("Arial", 10), bg="lightgray").pack(anchor="w")
-
-        tk.Label(frame, text=message["text"], font=("Arial", 12), bg="white", padx=5, pady=5).pack(fill=tk.X)
-
-        btn_frame = tk.Frame(frame, bg="lightgray")
-        btn_frame.pack(fill=tk.X)
-
-        if received:
-            mark_read_btn = tk.Button(btn_frame, text="Mark as Read", command=lambda: self.mark_message_read(message["mid"]), bg="green", fg="white")
-            mark_read_btn.pack(side=tk.RIGHT, padx=5)
-            if message["receiver_read"]:
-                mark_read_btn.config(state=tk.DISABLED)
-
-        delete_btn = tk.Button(btn_frame, text="Select for Delete", command=lambda: self.toggle_selection(message["mid"]), bg="red", fg="white")
-        delete_btn.pack(side=tk.RIGHT, padx=5)
-
-    def toggle_selection(self, mid):
-        """Adds/removes messages from the delete list."""
-        if mid in self.selected_messages:
-            self.selected_messages.remove(mid)
-        else:
-            self.selected_messages.add(mid)
-
-    def delete_selected_messages(self):
-        """Deletes selected messages."""
-        client_messages.delete_messages(self.sock, list(self.selected_messages))
-        self.selected_messages.clear()
-        self.load_received_messages()  # Refresh page
-
-    def mark_message_read(self, mid):
-        """Marks a message as read."""
-        client_messages.mark_message_read(self.sock, mid)
-        self.load_received_messages()  # Refresh page
-
     def clear_screen(self):
         for widget in self.root.winfo_children():
-            widget.destroy()
-
-    def clear_content(self):
-        for widget in self.home_frame.winfo_children():
             widget.destroy()
 
 if __name__ == "__main__":

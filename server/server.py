@@ -174,10 +174,8 @@ if __name__ == "__main__":
                     service_connection(key, mask)
     except KeyboardInterrupt:
         # Save runtime storage to disk before exiting
-        with open("test/users.json", "w") as f:
-            json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
-        with open("test/messages.json", "w") as f:
-            json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
+        # TODO Uncomment to persist runtime storage
+        # write_users_messages_json(users_dict, messages_dict)
         print("Caught keyboard interrupt, exiting")
     finally:
         sel.close()
