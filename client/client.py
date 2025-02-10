@@ -55,6 +55,9 @@ def main():
                 communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
             elif message.startswith("get-received-messages"):
                 communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
+            elif message.startswith("get-message-by-mid"):
+                _, mid = message.split()
+                communication.build_and_send_task(sock, "get-message-by-mid", mid=mid)
             elif message.startswith("mark-message-read"):
                 _, mid = message.split()
                 client_messages.mark_message_read(sock, mid)

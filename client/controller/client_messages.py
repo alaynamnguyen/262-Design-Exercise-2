@@ -2,7 +2,6 @@ from .communication import build_and_send_task
 
 def delete_messages(sock, mids):
     print("Calling delete_messages")
-
     response = build_and_send_task(sock, "delete-messages", mids=mids)
 
     if response["success"]:
@@ -16,7 +15,6 @@ def delete_messages(sock, mids):
     
 def mark_message_read(sock, mid):
     print("Calling mark_message_read")
-
     response = build_and_send_task(sock, "mark-message-read", mid=mid)
 
     if response["success"]:

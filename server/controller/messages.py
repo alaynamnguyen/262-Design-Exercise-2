@@ -1,4 +1,5 @@
 from model import Message
+from utils import dict_to_object_recursive, object_to_dict_recursive
 
 def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp): 
     """
@@ -57,6 +58,25 @@ def mark_message_read(messages_dict, mid):
     else:
         print(f"Failed to mark message read: message {mid} does not exist.")
         return False
+    
+def get_message_by_mid(mid, messages_dict):
+    """
+    Gets the message by its unique identifier.
+
+    Args:
+        mid (str): The unique identifier of the message.
+        messages_dict (dict): The dictionary of messages.
+
+    Returns:
+        Message: The message object.
+    """
+    if mid in messages_dict:
+        return object_to_dict_recursive(messages_dict[mid]) # Convert to dict
+    else:
+        print(f"Message {mid} does not exist.")
+        return None  # TODO Handle missing message case
+    
+# get-message-by-mid 230a64b0-f0e5-4b94-9f2e-4638005e99f8
 
 def get_sent_messages_id(uid, users_dict):
     """

@@ -6,23 +6,8 @@ import json
 from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts, delete_account
-from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages, mark_message_read
-
-# TODO put these functions somewhere else
-# Recursive function for object to dict
-def object_to_dict_recursive(obj):
-    """Recursively converts objects to dictionaries."""
-    if hasattr(obj, "__dict__"):
-        return {key: object_to_dict_recursive(value) for key, value in vars(obj).items()}
-    return obj
-
-# Recursive function for dict to object
-def dict_to_object_recursive(dct, cls):
-    """Converts a dictionary back to an object of type cls."""
-    obj = cls.__new__(cls)  # Create an empty instance
-    for key, value in dct.items():
-        setattr(obj, key, dict_to_object_recursive(value, globals().get(cls.__name__, object)) if isinstance(value, dict) else value)
-    return obj
+from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages, mark_message_read, get_message_by_mid
+from utils import dict_to_object_recursive, object_to_dict_recursive
 
 # Load config
 config = configparser.ConfigParser()
@@ -141,6 +126,13 @@ def service_connection(key, mask):
                     "task": "get-received-messages-reply",
                     "uid": message["sender"],
                     "mids": get_received_messages_id(message["sender"], users_dict)
+                }
+                data.outb += json.dumps(response).encode("utf-8")
+            elif message["task"] == "get-message-by-mid":
+                print(f"Get message by mid request for {message['mid']}")
+                response = {
+                    "task": "get-message-by-mid-reply",
+                    "message": get_message_by_mid(message["mid"], messages_dict)
                 }
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "mark-message-read":
