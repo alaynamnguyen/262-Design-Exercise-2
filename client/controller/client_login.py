@@ -4,87 +4,57 @@ from .communication import build_and_send_task
 def hash_password(password):
     """
     Hashes a password using SHA-256.
-
-    Args:
-        password (str): The password to hash.
-
-    Returns:
-        str: The hashed password.
     """
     return hashlib.sha256(password.encode()).hexdigest()
 
-def login_user(sock):
-    print("Calling login_user")
-    while True:
-        username = input("Username: ")
-        response = build_and_send_task(sock, "login-username", username=username)
+def check_username(sock, username):
+    """
+    Checks if the username exists on the server.
+    """
+    response = build_and_send_task(sock, "login-username", username=username)
+    return response["user_exists"]
 
-        if response["user_exists"]: # Login with existing account
+def login_user(sock, username, password):
+    """
+    Attempts to log in an existing user.
+    """
+    hashed_password = hash_password(password)
+    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
+    return response
+
+def create_account(sock, username, password):
+    """
+    Attempts to create a new account.
+    """
+    hashed_password = hash_password(password)
+    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
+    return response
+
+def cli_login(sock):
+    """
+    Handles command-line login.
+    """
+    while True:
+        username = input("Username: ").strip()
+        user_exists = check_username(sock, username)
+
+        if user_exists:  # Login with existing account
             print("User exists.")
             while True:
-                password = input("Password: ")
-                hashed_password = hash_password(password)
-                response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
-
+                password = input("Password: ").strip()
+                response = login_user(sock, username, password)
                 if response["login_success"]:
                     print(f"Login successful. You have {len(response['unread_messages'])} unread messages.")
-                    break
+                    return response["uid"]
                 else:
                     print("Incorrect password. Please try again.")
-        else: # Create a new account
-            print("Username does not exist.")
+        else:  # Create a new account
+            print("Username does not exist. Creating a new account.")
             while True:
-                password = input("Create a password: ")
-                hashed_password = hash_password(password)
-                response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
-
+                password = input("Create a password: ").strip()
+                response = create_account(sock, username, password)
                 if response["login_success"]:
                     print("Account created successfully.")
-                    break
+                    return response["uid"]
                 else:
                     print("Failed to create account. Please try again.")
-        
-        return response["uid"]
-
-# def check_username(sock, username):
-#     """
-#     Checks if the username exists on the server.
-
-#     Args:
-#         sock (socket.socket): The socket connected to the server.
-#         username (str): The username to check.
-
-#     Returns:
-#         dict: The response from the server.
-#     """
-#     return build_and_send_task(sock, "login-username", username=username)
-
-# def login_user(sock, username, password):
-#     """
-#     Attempts to log in the user with the given username and password.
-
-#     Args:
-#         sock (socket.socket): The socket connected to the server.
-#         username (str): The username of the user.
-#         password (str): The password of the user.
-
-#     Returns:
-#         dict: The response from the server.
-#     """
-#     hashed_password = hash_password(password)
-#     return build_and_send_task(sock, "login-password", username=username, password=hashed_password)
-
-# def create_account(sock, username, password):
-#     """
-#     Attempts to create a new account with the given username and password.
-
-#     Args:
-#         sock (socket.socket): The socket connected to the server.
-#         username (str): The username of the user.
-#         password (str): The password of the user.
-
-#     Returns:
-#         dict: The response from the server.
-#     """
-#     hashed_password = hash_password(password)
-#     return build_and_send_task(sock, "login-password", username=username, password=hashed_password)

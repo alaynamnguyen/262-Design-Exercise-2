@@ -31,9 +31,7 @@
             "230a64b0-f0e5-4b94-9f2e-4638005e99f8"
         ],
         "sent_messages": [
-            "2d6309db-3b82-475d-b4aa-bea8dc5a645e",
-            "5f5bebd1-fe42-4245-b0b3-65a2fbdb9ad3",
-            "6698f324-5cfd-4c29-8470-a61b10eda87b"
+            "2d6309db-3b82-475d-b4aa-bea8dc5a645e"
         ],
         "active": true
     },
@@ -42,9 +40,7 @@
         "username": "alex",
         "password": "079fef94bd65a7aed2ef8c73bfe8c79a7d8d291d7b91c2863ceeb683a11db15a",
         "received_messages": [
-            "2d6309db-3b82-475d-b4aa-bea8dc5a645e",
-            "5f5bebd1-fe42-4245-b0b3-65a2fbdb9ad3",
-            "6698f324-5cfd-4c29-8470-a61b10eda87b"
+            "2d6309db-3b82-475d-b4aa-bea8dc5a645e"
         ],
         "sent_messages": [
             "230a64b0-f0e5-4b94-9f2e-4638005e99f8"
