@@ -63,7 +63,7 @@ def main():
                 client_messages.mark_message_read(sock, mid)
             elif message.startswith("delete-messages"):
                 _, *mids = message.split() # TODO: later sub this with mids of selected messages from UI
-                client_messages.delete_messages(sock, mids)
+                client_messages.delete_messages(sock, mids, client_uid)
             elif message.startswith("delete-account"):
                 success = accounts.delete_account(sock, client_uid)
                 if success:

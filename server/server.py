@@ -132,7 +132,7 @@ def service_connection(key, mask):
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "delete-messages":
                 print("Delete messages request:", message)
-                success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"])
+                success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"], uid=message["uid"])
                 response = {
                     "task": "delete-messages-reply",
                     "deleted-mids": deleted_mids,

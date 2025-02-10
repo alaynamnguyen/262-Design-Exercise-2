@@ -252,7 +252,7 @@ class ChatApp:
 
     def delete_selected_messages(self):
         """Deletes selected messages."""
-        client_messages.delete_messages(self.sock, list(self.selected_messages))
+        client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid)
         self.selected_messages.clear()
         self.load_received_messages()  # Refresh page
 

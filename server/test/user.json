@@ -28,7 +28,9 @@
         "username": "jim",
         "password": "33786774afd49d3a3bdfaf45aa1bb02689599e7d5dda5e8d86b2abde6077d15b",
         "received_messages": [
-            "230a64b0-f0e5-4b94-9f2e-4638005e99f8"
+            "48e82bef-6d91-46af-bb71-26a976dde8ec",
+            "93e46a2f-9abf-4ce0-a07e-90696c3d7c0d",
+            "ab424c7f-7645-4320-a6b9-ad2d761a42ca"
         ],
         "sent_messages": [
             "2d6309db-3b82-475d-b4aa-bea8dc5a645e",
@@ -51,7 +53,11 @@
             "014ce660-ef7d-4480-8ccd-19487ec50cba"
         ],
         "sent_messages": [
-            "230a64b0-f0e5-4b94-9f2e-4638005e99f8"
+            "230a64b0-f0e5-4b94-9f2e-4638005e99f8",
+            "677990d5-6b8a-4e1c-97fe-c3f934f2e16b",
+            "48e82bef-6d91-46af-bb71-26a976dde8ec",
+            "93e46a2f-9abf-4ce0-a07e-90696c3d7c0d",
+            "ab424c7f-7645-4320-a6b9-ad2d761a42ca"
         ],
         "active": true
     }

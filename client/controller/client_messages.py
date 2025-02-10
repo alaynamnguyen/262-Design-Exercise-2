@@ -1,8 +1,8 @@
 from .communication import build_and_send_task
 
-def delete_messages(sock, mids):
+def delete_messages(sock, mids, client_uid):
     print("Calling delete_messages")
-    response = build_and_send_task(sock, "delete-messages", mids=mids)
+    response = build_and_send_task(sock, "delete-messages", mids=mids, uid=client_uid)
 
     if response["success"]:
         deleted_mids = response["deleted-mids"]
