@@ -92,12 +92,16 @@ class ChatApp:
         """Loads the main page after successful login."""
         self.clear_screen()
         self.create_nav_buttons()
+        
+        self.home_frame = tk.Frame(self.root)
+        self.home_frame.pack(fill=tk.BOTH, expand=True)
+        
         self.load_received_messages()  # Default page
 
     def create_nav_buttons(self):
         """Creates persistent navigation buttons."""
         btn_frame = tk.Frame(self.root)
-        btn_frame.pack(pady=10)
+        btn_frame.pack(side=tk.TOP, pady=10)
 
         tk.Button(btn_frame, text="Received", command=self.load_received_messages).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Sent", command=self.load_sent_messages).pack(side=tk.LEFT, padx=5)
@@ -262,8 +266,10 @@ class ChatApp:
             widget.destroy()
 
     def clear_content(self):
-        for widget in self.home_frame.winfo_children():
-            widget.destroy()
+        """Clears content inside home_frame to prevent 'AttributeError'."""
+        if hasattr(self, "home_frame") and isinstance(self.home_frame, tk.Frame):
+            for widget in self.home_frame.winfo_children():
+                widget.destroy()
 
 if __name__ == "__main__":
     root = tk.Tk()
