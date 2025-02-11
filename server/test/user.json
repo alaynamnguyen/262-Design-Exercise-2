@@ -27,7 +27,9 @@
         "uid": "40b18422-da24-4f33-9031-2fcc609c86a1",
         "username": "joe",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
-        "received_messages": [],
+        "received_messages": [
+            "eb20346d-98c3-4591-b87f-6c6f98a50c8d"
+        ],
         "sent_messages": [],
         "active": true
     },
@@ -44,7 +46,10 @@
         "username": "gill",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
         "received_messages": [],
-        "sent_messages": [],
+        "sent_messages": [
+            "9c429fe4-3f04-4499-9e9e-195fa2684347",
+            "1f9a11db-cd04-4092-8666-9b6f20b4ef63"
+        ],
         "active": true
     },
     "4ab7c146-e3a6-4d8a-9f52-54ecea0ff00b": {
@@ -52,7 +57,11 @@
         "username": "amy",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
         "received_messages": [],
-        "sent_messages": [],
+        "sent_messages": [
+            "224d3f1d-bc9b-4a88-8c92-efdddc04d5b4",
+            "806a4aeb-e682-48eb-9674-6fde604bb0c6",
+            "4f60a44c-96c0-406d-81d4-900d3926f336"
+        ],
         "active": true
     },
     "1316b684-74de-4f8f-8f91-45c391519a25": {
@@ -86,13 +95,24 @@
         "username": "jim",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
         "received_messages": [
-            "6bac3754-b1ba-4381-9718-afde00234ff3",
-            "ae3c13a9-7678-4229-9761-de29f8f85a11"
+            "47acc852-d89f-4abc-bfd1-5c38997a4dfe"
         ],
         "sent_messages": [
             "264339e7-bb23-4942-a8ce-8ded1d1d7879",
-            "6bac3754-b1ba-4381-9718-afde00234ff3",
-            "ae3c13a9-7678-4229-9761-de29f8f85a11"
+            "eb20346d-98c3-4591-b87f-6c6f98a50c8d"
+        ],
+        "active": true
+    },
+    "094bd1ca-39e4-4fe5-877b-e9d06191e516": {
+        "uid": "094bd1ca-39e4-4fe5-877b-e9d06191e516",
+        "username": "alex",
+        "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
+        "received_messages": [],
+        "sent_messages": [
+            "1c565df1-6d0f-4b34-87c6-0bf592be048e",
+            "6dc61d15-a0ae-4db4-8219-e163b468ad75",
+            "d8fd2fec-1014-431e-ab7a-8174b1a409b3",
+            "8fc20520-f65e-45f8-9bb8-ea17e8e4fa10"
         ],
         "active": true
     }
