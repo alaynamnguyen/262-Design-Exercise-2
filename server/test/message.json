@@ -149,6 +149,60 @@
         "text": "hehehe",
         "mid": "008804b0-742c-4386-811a-ca91a8e5ffae",
         "timestamp": "2025-02-10 19:42:51.185489",
+        "receiver_read": true
+    },
+    "42665a6e-5f0b-49c4-8392-c58f6ba3bf88": {
+        "sender": "c55081a3-96ef-4033-9177-4f8431076088",
+        "receiver": "c55081a3-96ef-4033-9177-4f8431076088",
+        "text": "well hey there",
+        "mid": "42665a6e-5f0b-49c4-8392-c58f6ba3bf88",
+        "timestamp": "2025-02-10 19:51:18.811217",
+        "receiver_read": false
+    },
+    "c2e07eb6-7001-48b7-ac55-02ab13f11563": {
+        "sender": "c55081a3-96ef-4033-9177-4f8431076088",
+        "receiver": "c55081a3-96ef-4033-9177-4f8431076088",
+        "text": "welwe",
+        "mid": "c2e07eb6-7001-48b7-ac55-02ab13f11563",
+        "timestamp": "2025-02-10 20:00:21.803922",
+        "receiver_read": false
+    },
+    "9d87720f-9d66-4177-a0d9-4322556f04ca": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "75284b3b-c68f-4492-b30a-dce841e4b500",
+        "text": "sdfslkdfjsldf",
+        "mid": "9d87720f-9d66-4177-a0d9-4322556f04ca",
+        "timestamp": "2025-02-10 20:05:37.596279",
+        "receiver_read": false
+    },
+    "c1960f95-3cd6-4b39-97b0-6ed6c0cabd63": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "sender_username": "jim",
+        "receiver_username": "alex",
+        "text": "h",
+        "mid": "c1960f95-3cd6-4b39-97b0-6ed6c0cabd63",
+        "timestamp": "2025-02-10 20:15:56.311227",
+        "receiver_read": false
+    },
+    "94169115-334e-44c2-b3fa-ff07542b96ca": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "sender_username": "jim",
+        "receiver_username": "jim",
+        "text": "well",
+        "mid": "94169115-334e-44c2-b3fa-ff07542b96ca",
+        "timestamp": "2025-02-10 20:16:06.311391",
+        "receiver_read": false
+    },
+    "5dcb817f-5e3c-4658-8754-03c3301a608e": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "sender_username": "jim",
+        "receiver_username": "jim",
+        "text": ":)",
+        "mid": "5dcb817f-5e3c-4658-8754-03c3301a608e",
+        "timestamp": "2025-02-10 20:16:20.174846",
         "receiver_read": false
     }
 }

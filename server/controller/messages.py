@@ -11,15 +11,16 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 
     receiver_uid = None
     for uid, user in users_dict.items():
-        if user.username == receiver_username:
+        if user.username == receiver_username and user.active:
             receiver_uid = uid
+    sender_username = users_dict[sender_uid].username
 
     if receiver_uid is None:
         print("Receiver does not exist.")
         return False
 
     # Create message object, receiver_read is False by default
-    message = Message(sender=sender_uid, receiver=receiver_uid, text=text, timestamp=timestamp)
+    message = Message(sender=sender_uid, receiver=receiver_uid, sender_username=sender_username, receiver_username=receiver_username, text=text, timestamp=timestamp)
     print("Message id:", message.mid)
 
     # Update runtime storage

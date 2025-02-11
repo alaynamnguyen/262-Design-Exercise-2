@@ -116,14 +116,25 @@ class ChatApp:
         tk.Button(self.root, text="Confirm Delete Account", command=self.delete_account, bg="red", fg="black", font=("Arial", 14, "bold"), padx=20, pady=10).pack(pady=100)
 
     def delete_account(self):
-        """Deletes the user account."""
+        """Deletes the user account and closes the application."""
         response = accounts.delete_account(self.sock, self.client_uid)
         if response["success"]:
-            messagebox.showinfo("Success", "Account successfully deleted.")
-            self.create_login_screen()
+            messagebox.showinfo("Success", "Account successfully deleted. Closing application.")
+            self.root.quit()  # Close the entire Tkinter app
+
+    def update_character_count(self, event=None):
+        """Updates the character counter and prevents exceeding the limit."""
+        message_text = self.message_entry.get("1.0", tk.END).strip()
+
+        if len(message_text) > 280:
+            self.message_entry.delete("1.0", tk.END)
+            self.message_entry.insert("1.0", message_text[:280])  # Trim to 280 chars
+
+        remaining_chars = 280 - len(message_text)
+        self.char_count_label.config(text=f"{remaining_chars} characters remaining")
 
     def load_new_message_page(self):
-        """Loads the new message page with account selection."""
+        """Loads the new message page with account selection and enforces a character limit on messages."""
         self.clear_screen()
         self.create_nav_buttons()
 
@@ -145,8 +156,14 @@ class ChatApp:
         self.recipient_listbox.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.recipient_listbox.yview)
 
+        # Message Entry with Character Counter
         self.message_entry = tk.Text(self.root, height=5, width=50)
         self.message_entry.pack(pady=5)
+        self.message_entry.bind("<KeyRelease>", self.update_character_count)  # Live character count update
+
+        # Character Counter Label
+        self.char_count_label = tk.Label(self.root, text="280 characters remaining", font=("Arial", 10), fg="gray")
+        self.char_count_label.pack()
 
         tk.Button(self.root, text="Send", command=self.send_message).pack(pady=5)
 
@@ -159,7 +176,7 @@ class ChatApp:
             self.recipient_listbox.insert(tk.END, account)
 
     def send_message(self):
-        """Sends a message to the selected recipient."""
+        """Sends a message to the selected recipient with a 280-character limit."""
         selected_index = self.recipient_listbox.curselection()
         if not selected_index:
             messagebox.showerror("Error", "Please select a recipient.")
@@ -170,6 +187,10 @@ class ChatApp:
 
         if not message_text:
             messagebox.showerror("Error", "Message cannot be empty.")
+            return
+
+        if len(message_text) > 280:
+            messagebox.showerror("Error", "Message exceeds 280 characters.")
             return
 
         communication.build_and_send_task(self.sock, "send-message", sender=self.client_uid, receiver=recipient, text=message_text, timestamp=str(datetime.now()))
@@ -227,22 +248,24 @@ class ChatApp:
             self.display_message(self.messages_frame, message, received=True)
     
     def fetch_unread_messages(self):
-        """Displays the next N unread messages as requested by the user while keeping existing ones."""
+        """Displays the next N unread messages, retrieving the oldest first."""
         num_to_fetch = self.num_messages_var.get()
 
         if not self.unread_messages:
             messagebox.showinfo("Info", "No more unread messages.")
             return
 
-        # Fetch up to the requested number of unread messages
+        # Fetch up to the requested number of unread messages (OLDEST FIRST)
         messages_to_display = self.unread_messages[:num_to_fetch]
 
-        # Insert new messages at the top instead of appending at the bottom
-        for message in (messages_to_display):  # Display newest unread messages first
+        # Display messages in their original order (oldest at the top)
+        for message in messages_to_display:
             self.display_message(self.messages_frame, message, received=True)
 
-        self.unread_messages = self.unread_messages[num_to_fetch:]  # Keep previously loaded unread messages
+        # Remove displayed messages from the unread list
+        self.unread_messages = self.unread_messages[num_to_fetch:]
 
+        # Update unread message count
         self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
         self.num_messages_dropdown.config(to=len(self.unread_messages) if len(self.unread_messages) > 0 else 1)
 
@@ -285,8 +308,9 @@ class ChatApp:
 
         sender = "From" if received else "To"
         status = "🔴" if received and not message["receiver_read"] else ""
+        print("MESSAGE", message)
 
-        header = f"{status} {sender} {message['sender'] if received else message['receiver']}\n{message['timestamp']}"
+        header = f"{status} {sender} {message['sender_username'] if received else message['receiver_username']}\n{message['timestamp']}"
         tk.Label(frame, text=header, font=("Arial", 10), bg="lightgray").pack(anchor="w")
 
         tk.Label(frame, text=message["text"], font=("Arial", 12), bg="white", padx=5, pady=5).pack(fill=tk.X)
@@ -312,7 +336,6 @@ class ChatApp:
             self.selected_messages.add(mid)
         else:
             self.selected_messages.discard(mid)
-
 
     def delete_selected_messages(self):
         """Deletes selected messages and refreshes only the current page."""

@@ -17,7 +17,8 @@
         "username": "alayna",
         "password": "3f5be9e1c646a0b0c0debc04a4b4b3cd14e02172368342fa2b5fade0317b9066",
         "received_messages": [
-            "9f8dc300-6e37-479c-9e47-745c9c6d64e2"
+            "9f8dc300-6e37-479c-9e47-745c9c6d64e2",
+            "9d87720f-9d66-4177-a0d9-4322556f04ca"
         ],
         "sent_messages": [
             "211aaf91-4606-467d-a3a2-640a69fd4377"
@@ -31,14 +32,19 @@
         "received_messages": [
             "48e82bef-6d91-46af-bb71-26a976dde8ec",
             "93e46a2f-9abf-4ce0-a07e-90696c3d7c0d",
-            "ab424c7f-7645-4320-a6b9-ad2d761a42ca"
+            "ab424c7f-7645-4320-a6b9-ad2d761a42ca",
+            "94169115-334e-44c2-b3fa-ff07542b96ca",
+            "5dcb817f-5e3c-4658-8754-03c3301a608e"
         ],
         "sent_messages": [
             "2d6309db-3b82-475d-b4aa-bea8dc5a645e",
             "0cf29ffe-1883-480c-80fe-c237b5b02271",
             "72eec44d-c24f-4061-9795-a957c604c603",
             "4d990fae-f8fa-471c-b0ed-9d6c78995fe4",
-            "014ce660-ef7d-4480-8ccd-19487ec50cba"
+            "014ce660-ef7d-4480-8ccd-19487ec50cba",
+            "c1960f95-3cd6-4b39-97b0-6ed6c0cabd63",
+            "94169115-334e-44c2-b3fa-ff07542b96ca",
+            "5dcb817f-5e3c-4658-8754-03c3301a608e"
         ],
         "active": true
     },
@@ -48,13 +54,23 @@
         "password": "079fef94bd65a7aed2ef8c73bfe8c79a7d8d291d7b91c2863ceeb683a11db15a",
         "received_messages": [
             "e0cdcc10-70f6-4ed7-8d72-49748062ad1f",
-            "008804b0-742c-4386-811a-ca91a8e5ffae"
+            "008804b0-742c-4386-811a-ca91a8e5ffae",
+            "c1960f95-3cd6-4b39-97b0-6ed6c0cabd63"
         ],
         "sent_messages": [
             "230a64b0-f0e5-4b94-9f2e-4638005e99f8",
             "e0cdcc10-70f6-4ed7-8d72-49748062ad1f",
-            "008804b0-742c-4386-811a-ca91a8e5ffae"
+            "008804b0-742c-4386-811a-ca91a8e5ffae",
+            "9d87720f-9d66-4177-a0d9-4322556f04ca"
         ],
         "active": true
+    },
+    "c55081a3-96ef-4033-9177-4f8431076088": {
+        "uid": "c55081a3-96ef-4033-9177-4f8431076088",
+        "username": "manasvi",
+        "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
+        "received_messages": [],
+        "sent_messages": [],
+        "active": false
     }
 }

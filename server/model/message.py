@@ -3,7 +3,7 @@ import uuid
 from utils import dict_to_object_recursive, object_to_dict_recursive
 
 class Message:
-    def __init__(self, sender, receiver, text, mid=None, timestamp=None, receiver_read=False):
+    def __init__(self, sender, receiver, sender_username, receiver_username, text, mid=None, timestamp=None, receiver_read=False):
         """
         Initializes a new message.
 
@@ -17,6 +17,8 @@ class Message:
         """
         self.sender = sender
         self.receiver = receiver
+        self.sender_username = sender_username
+        self.receiver_username = receiver_username
         self.text = text
         self.mid = mid if mid else str(uuid.uuid4())
         self.timestamp = str(timestamp if timestamp else datetime.now())  # Convert to string for JSON serialization
