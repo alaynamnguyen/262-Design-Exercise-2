@@ -45,16 +45,14 @@ def handle_login_request(data, sock, message, users_dict, connected_clients):
                 response = {
                     "task": "login-password-reply",
                     "uid": uid,
-                    "login_success": True,
-                    "unread_messages": ["hey", "hi"]  # Placeholder for unread messages
+                    "login_success": True
                 }
                 mark_client_connected(uid, data.addr, connected_clients, sock)
             else: # Password is incorrect
                 response = {
                     "task": "login-password-reply",
                     "uid": uid,
-                    "login_success": False,
-                    "unread_messages": []
+                    "login_success": False
                 }
         else: # Username does not exist
             uid = create_account(message["username"], message["password"], users_dict)

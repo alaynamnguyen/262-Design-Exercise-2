@@ -11,6 +11,7 @@ config.read("config.ini")
 
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])
+USE_WIRE_PROTOCOL = config.getboolean("network", "use_wire_protocol")
 
 class ChatApp:
     def __init__(self, root):

@@ -1,3 +1,5 @@
+import json 
+
 opcode_to_task = {
     "a": "login-username",
     "b": "login-username-reply",
@@ -8,6 +10,21 @@ opcode_to_task = {
 task_to_opcode = dict()
 for k, v in opcode_to_task.items():
     task_to_opcode[v] = k
+
+# Utility Functions for JSON/Wire Protocol Handling
+def send_response(data, response, USE_WIRE_PROTOCOL):
+    """Encapsulates response handling for JSON or wire protocol."""
+    if USE_WIRE_PROTOCOL:
+        encoded_response = json_to_wire_protocol(response)
+    else:
+        encoded_response = json.dumps(response).encode("utf-8")
+    data.outb += encoded_response
+
+def parse_request(data, USE_WIRE_PROTOCOL):
+    """Encapsulates request handling for JSON or wire protocol."""
+    if USE_WIRE_PROTOCOL:
+        return wire_protocol_to_json(data.inb.decode("utf-8")) # TODO update, Placeholder for wire protocol decoding
+    return json.loads(data.inb.decode("utf-8"))
 
 def json_to_wire_protocol(json_message):
     wire_message = f"{task_to_opcode[json_message['task']]}"
@@ -30,8 +47,7 @@ def json_to_wire_protocol(json_message):
         login_success = str(json_message["login_success"])[0]
         # Note len(uuid) = 36
         wire_message += login_success + \
-            json_message["uid"] + \
-            ",".join(json_message["unread_messages"])
+            json_message["uid"]
         
     else:
         raise NotImplementedError
@@ -39,6 +55,7 @@ def json_to_wire_protocol(json_message):
     return wire_message
 
 def wire_protocol_to_json(wire_message):
+    print("Wire message:", wire_message)
     json_message = {
         "task": opcode_to_task[wire_message[0]]
     }
@@ -57,9 +74,7 @@ def wire_protocol_to_json(wire_message):
     
     elif json_message["task"] == "login-password-reply":
         json_message["login_success"] = (wire_message[1] == "T")
-        json_message["uid"] = wire_message[2: 2+36]
-        json_message["unread_messages"] = wire_message[2+36:].split(",")
-
+        json_message["uid"] = wire_message[2:]
     else:
         raise NotImplementedError
     
@@ -99,9 +114,7 @@ if __name__ == "__main__":
         {
             "task": "login-password-reply",
             "uid": "90c20039-0057-49f2-95d5-7682ba0777d3",
-            "login_success": True,
-            "unread_messages": ["ae3c13a9-7678-4229-9761-de29f8f85a11",
-                                "6bac3754-b1ba-4381-9718-afde00234ff3"]
+            "login_success": True
         })
     
     print(wire_m)
