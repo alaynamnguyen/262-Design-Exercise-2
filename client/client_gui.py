@@ -35,7 +35,7 @@ class ChatApp:
         self.clear_screen()
 
         self.login_frame = tk.Frame(self.root)
-        self.login_frame.pack(expand=True)  # Centering
+        self.login_frame.pack(expand=True)
 
         tk.Label(self.login_frame, text="Welcome", font=("Arial", 16, "bold")).pack(pady=10)
         tk.Label(self.login_frame, text="Username:", font=("Arial", 12)).pack()
@@ -177,29 +177,62 @@ class ChatApp:
         self.load_received_messages()
 
     def load_received_messages(self):
-        """Fetch and display received messages."""
-        self.clear_content()
+        """Fetch and display received messages with unread selection."""
+        self.clear_screen()
+        self.create_nav_buttons()
+
+        self.home_frame = tk.Frame(self.root)
+        self.home_frame.pack(fill=tk.BOTH, expand=True)
 
         response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
         mids = response["mids"]
 
-        self.messages_frame = tk.Frame(self.home_frame)  # Use self.home_frame
-        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-        unread_count = 0
-
+        self.unread_messages = []
+        self.read_messages = []
         for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
             message = msg_response["message"]
+            if message["receiver_read"]:
+                self.read_messages.append(message)
+            else:
+                self.unread_messages.append(message)
 
-            if not message["receiver_read"]:
-                unread_count += 1
+        unread_count = len(self.unread_messages)
 
-            self.display_message(message, received=True)
+        control_frame = tk.Frame(self.home_frame)
+        control_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        tk.Label(self.home_frame, text=f"{unread_count} unread messages", font=("Arial", 14, "bold")).pack()
+        self.unread_label = tk.Label(control_frame, text=f"{unread_count} unread messages", font=("Arial", 14, "bold"))
+        self.unread_label.pack(side=tk.LEFT, padx=5)
 
-        tk.Button(self.home_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(pady=5)
+        self.num_messages_var = tk.IntVar(value=1)
+        self.num_messages_dropdown = tk.Spinbox(control_frame, from_=1, to=unread_count if unread_count > 0 else 1, textvariable=self.num_messages_var, width=5)
+        self.num_messages_dropdown.pack(side=tk.LEFT, padx=5)
+
+        tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
+
+        self.messages_frame = tk.Frame(self.home_frame)
+        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        for message in self.read_messages:
+            self.display_message(self.messages_frame, message, received=True)
+
+    def fetch_unread_messages(self):
+        """Displays the next N unread messages as requested by the user."""
+        num_to_fetch = self.num_messages_var.get()
+
+        if not self.unread_messages:
+            messagebox.showinfo("Info", "No more unread messages.")
+            return
+
+        messages_to_display = self.unread_messages[:num_to_fetch]
+        self.unread_messages = self.unread_messages[num_to_fetch:]
+
+        for message in messages_to_display:
+            self.display_message(self.messages_frame, message, received=True)
+
+        self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
+        self.num_messages_dropdown.config(to=len(self.unread_messages) if len(self.unread_messages) > 0 else 1)
 
     def load_sent_messages(self):
         """Fetch and display sent messages."""
@@ -214,13 +247,13 @@ class ChatApp:
         for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
             message = msg_response["message"]
-            self.display_message(message, received=False)
+            self.display_message(self.messages_frame, message, received=False)
 
         tk.Button(self.home_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(pady=5)
 
-    def display_message(self, message, received=True):
+    def display_message(self, parent, message, received=True):
         """Displays a single message in the UI."""
-        frame = tk.Frame(self.messages_frame, bg="lightgray", padx=5, pady=5)
+        frame = tk.Frame(parent, bg="lightgray", padx=5, pady=5)
         frame.pack(fill=tk.X, pady=5)
 
         sender = "From" if received else "To"

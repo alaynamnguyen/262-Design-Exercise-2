@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, Scrollbar, Canvas, Frame
+from tkinter import messagebox, Scrollbar
 import socket
 import configparser
 from controller import client_login, communication, client_messages, accounts
@@ -110,46 +110,65 @@ class ChatApp:
         tk.Button(btn_frame, text="Delete Account", command=self.load_delete_account_page).pack(side=tk.LEFT, padx=5)
 
     def load_received_messages(self):
-        """Fetch and display received messages with scrolling."""
+        """Fetch and display received messages with unread selection."""
         self.clear_screen()
         self.create_nav_buttons()
 
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Create a canvas for scrolling
-        canvas = Canvas(self.home_frame)
-        scrollbar = Scrollbar(self.home_frame, orient="vertical", command=canvas.yview)
-        scrollable_frame = Frame(canvas)
-
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
         response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
         mids = response["mids"]
 
-        unread_count = 0
+        self.unread_messages = []
+        self.read_messages = []
         for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
             message = msg_response["message"]
+            if message["receiver_read"]:
+                self.read_messages.append(message)
+            else:
+                self.unread_messages.append(message)
 
-            if not message["receiver_read"]:
-                unread_count += 1
+        unread_count = len(self.unread_messages)
 
-            self.display_message(scrollable_frame, message, received=True)
+        control_frame = tk.Frame(self.home_frame)
+        control_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        tk.Label(scrollable_frame, text=f"{unread_count} unread messages", font=("Arial", 14, "bold")).pack()
+        self.unread_label = tk.Label(control_frame, text=f"{unread_count} unread messages", font=("Arial", 14, "bold"))
+        self.unread_label.pack(side=tk.LEFT, padx=5)
 
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.num_messages_var = tk.IntVar(value=1)
+        self.num_messages_dropdown = tk.Spinbox(control_frame, from_=1, to=unread_count if unread_count > 0 else 1, textvariable=self.num_messages_var, width=5)
+        self.num_messages_dropdown.pack(side=tk.LEFT, padx=5)
 
-    def display_message(self, parent, message, received=True):
-        """Displays a single message in the UI inside a scrollable parent frame."""
+        tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
+
+        self.messages_frame = tk.Frame(self.home_frame)
+        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        for message in self.read_messages:
+            self.display_message(self.messages_frame, message, received=True)
+
+    def fetch_unread_messages(self):
+        """Displays the next N unread messages as requested by the user."""
+        num_to_fetch = self.num_messages_var.get()
+
+        if not self.unread_messages:
+            messagebox.showinfo("Info", "No more unread messages.")
+            return
+
+        messages_to_display = self.unread_messages[:num_to_fetch]
+        self.unread_messages = self.unread_messages[num_to_fetch:]
+
+        for message in messages_to_display:
+            self.display_message(self.messages_frame, message, received=True)
+
+        self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
+        self.num_messages_dropdown.config(to=len(self.unread_messages) if len(self.unread_messages) > 0 else 1)
+
+    def display_message(self, parent, message, received):
+        """Displays a single message."""
         frame = tk.Frame(parent, bg="lightgray", padx=5, pady=5)
         frame.pack(fill=tk.X, pady=5)
 
@@ -160,8 +179,3 @@ class ChatApp:
         tk.Label(frame, text=header, font=("Arial", 10), bg="lightgray").pack(anchor="w")
 
         tk.Label(frame, text=message["text"], font=("Arial", 12), bg="white", padx=5, pady=5).pack(fill=tk.X)
-
-    def clear_screen(self):
-        """Clears all widgets before switching pages."""
-        for widget in self.root.winfo_children():
-            widget.destroy()

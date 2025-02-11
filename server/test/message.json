@@ -37,7 +37,7 @@
         "text": "guess what",
         "mid": "0cf29ffe-1883-480c-80fe-c237b5b02271",
         "timestamp": "2025-02-09 22:58:26.268806",
-        "receiver_read": false
+        "receiver_read": true
     },
     "72eec44d-c24f-4061-9795-a957c604c603": {
         "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
@@ -94,5 +94,13 @@
         "mid": "ab424c7f-7645-4320-a6b9-ad2d761a42ca",
         "timestamp": "2025-02-10 16:55:23.604901",
         "receiver_read": true
+    },
+    "3743d0b9-3d14-41fd-9a7b-9b0225144485": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "3c9cd41a-97c2-40c9-bef0-d15db9577f1f",
+        "text": "theoe",
+        "mid": "3743d0b9-3d14-41fd-9a7b-9b0225144485",
+        "timestamp": "2025-02-10 19:00:20.714120",
+        "receiver_read": false
     }
 }

@@ -4,7 +4,8 @@
         "username": "yinan",
         "password": "c4bd3d5cba95c4978eb3ea87fa44ddf259346f276f0ad1800d721661f285728b",
         "received_messages": [
-            "211aaf91-4606-467d-a3a2-640a69fd4377"
+            "211aaf91-4606-467d-a3a2-640a69fd4377",
+            "3743d0b9-3d14-41fd-9a7b-9b0225144485"
         ],
         "sent_messages": [
             "9f8dc300-6e37-479c-9e47-745c9c6d64e2"
@@ -57,7 +58,8 @@
             "677990d5-6b8a-4e1c-97fe-c3f934f2e16b",
             "48e82bef-6d91-46af-bb71-26a976dde8ec",
             "93e46a2f-9abf-4ce0-a07e-90696c3d7c0d",
-            "ab424c7f-7645-4320-a6b9-ad2d761a42ca"
+            "ab424c7f-7645-4320-a6b9-ad2d761a42ca",
+            "3743d0b9-3d14-41fd-9a7b-9b0225144485"
         ],
         "active": true
     }
