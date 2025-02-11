@@ -1,12 +1,10 @@
 from model import Message
 from utils import dict_to_object_recursive, object_to_dict_recursive
+import json
 
-def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp): 
+def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp, connected_clients): 
     """
-    Sends a message to the server.
-
-    Args:
-        message (dict): The message to send to the server.
+    Sends a message. If the recipient is online, notify them immediately.
     """
 
     receiver_uid = None
@@ -30,6 +28,13 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 
     # TODO: Wrap with try-except?
     # TODO: Send to receiver if receiver online
+    # If receiver is online, send notification to refresh received messages
+    # if receiver_uid in connected_clients:
+    #     receiver_sock = connected_clients[receiver_uid][1]  # Extract socket from (addr, sock) tuple
+    #     notification = {
+    #         "task": "refresh-received-messages"
+    #     }
+    #     receiver_sock.sendall(json.dumps(notification).encode("utf-8"))  # Notify recipient to refresh
 
     return True
 

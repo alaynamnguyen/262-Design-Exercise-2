@@ -27,7 +27,7 @@
         "text": "sd",
         "mid": "ae3c13a9-7678-4229-9761-de29f8f85a11",
         "timestamp": "2025-02-10 21:10:37.246728",
-        "receiver_read": false
+        "receiver_read": true
     },
     "ea2eb65e-e169-472f-8bb7-67c32501192d": {
         "sender": "90c20039-0057-49f2-95d5-7682ba0777d3",

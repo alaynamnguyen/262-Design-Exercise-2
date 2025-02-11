@@ -39,7 +39,7 @@ for k, v in messages.items():
 print("Messages", messages_dict)
 
 # Keep track of connected, logged in clients by uid
-connected_clients = dict() # uid --> addr
+connected_clients = dict() # uid --> [addr, sock]
 
 # For ease of seeing that things are deleted/added properly
 def write_users_messages_json(users_dict, messages_dict):
@@ -68,19 +68,18 @@ def service_connection(key, mask):
             sel.unregister(sock)
             sock.close()
 
-            for client_uid, client_addr in connected_clients.items():
+            for client_uid, value in connected_clients.items():
+                client_addr, _ = value
                 if client_addr == data.addr: # Only remove the client who disconnected
                     print(f"Removing {client_uid} from connected_clients")
                     connected_clients.pop(client_uid)
                     break  # Stop after removing the correct UID
-            # print("Connected clients:", connected_clients.keys())
 
-        # print("Received DATA:", data.inb)
         if data.inb:
             message = json.loads(data.inb.decode("utf-8"))
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
-                handle_login_request(data, message, users_dict, connected_clients)
+                handle_login_request(data, sock, message, users_dict, connected_clients)
             elif message["task"] == "list-accounts":
                 print("Calling list_accounts")
                 response = {
@@ -90,9 +89,7 @@ def service_connection(key, mask):
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "send-message":
                 print("Send message request: ", message)
-                message_sent = send_message(message["sender"], message["receiver"], message["text"], users_dict, messages_dict, timestamp=message["timestamp"])
-                # TODO: For testing only, delete this later
-                write_users_messages_json(users_dict, messages_dict)
+                message_sent = send_message(message["sender"], message["receiver"], message["text"], users_dict, messages_dict, timestamp=message["timestamp"], connected_clients=connected_clients)
                 response = {
                     "task": "send-message-reply",
                     "success": message_sent
@@ -138,8 +135,6 @@ def service_connection(key, mask):
                     "deleted-mids": deleted_mids,
                     "success": success
                 }
-                write_users_messages_json(users_dict, messages_dict) # TODO remove once tested
-                # TODO: think about the smartest way to update other users loggedin if a message related to them is deleted
                 data.outb += json.dumps(response).encode("utf-8")
             elif message["task"] == "delete-account":
                 print("Delete account request:", message)
@@ -147,7 +142,6 @@ def service_connection(key, mask):
                     "task": "delete-account-reply",
                     "success": delete_account(users_dict, message["uid"])
                 }
-                write_users_messages_json(users_dict, messages_dict) # TODO remove once tested
                 data.outb += json.dumps(response).encode("utf-8")
             
             data.inb = b""
@@ -176,8 +170,7 @@ if __name__ == "__main__":
                     service_connection(key, mask)
     except KeyboardInterrupt:
         # Save runtime storage to disk before exiting
-        # TODO Uncomment to persist runtime storage
         write_users_messages_json(users_dict, messages_dict)
-        print("Caught keyboard interrupt, exiting")
+        print("Caught keyboard interrupt, exiting (saved runtime storage to disk)")
     finally:
         sel.close()

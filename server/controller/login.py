@@ -21,11 +21,11 @@ def create_account(username: str, password: str, users_dict: dict):
     users_dict[user.uid] = user
     return user.uid
 
-def mark_client_connected(uid, addr, connected_clients):
-    connected_clients[uid] = addr # Mark this client as logged in and online
+def mark_client_connected(uid, addr, connected_clients, sock):
+    connected_clients[uid] = [addr, sock] # Mark this client as logged in and online
     # print("Connected clients:", connected_clients.keys())
 
-def handle_login_request(data, message, users_dict, connected_clients):
+def handle_login_request(data, sock, message, users_dict, connected_clients):
     print("Calling handle_login_request")
     response = {}
     if message["task"] == "login-username":
@@ -48,7 +48,7 @@ def handle_login_request(data, message, users_dict, connected_clients):
                     "login_success": True,
                     "unread_messages": ["hey", "hi"]  # Placeholder for unread messages
                 }
-                mark_client_connected(uid, data.addr, connected_clients)
+                mark_client_connected(uid, data.addr, connected_clients, sock)
             else: # Password is incorrect
                 response = {
                     "task": "login-password-reply",
@@ -65,6 +65,6 @@ def handle_login_request(data, message, users_dict, connected_clients):
                 "login_success": True,
                 "unread_messages": []
             }
-            mark_client_connected(uid, data.addr, connected_clients)
+            mark_client_connected(uid, data.addr, connected_clients, sock)
 
     data.outb += json.dumps(response).encode("utf-8")
