@@ -177,9 +177,11 @@ class ChatApp:
         self.load_received_messages()
 
     def load_received_messages(self):
-        """Fetch and display received messages in newest-first order with unread selection."""
+        """Fetch and display received messages, but only show unread messages when requested."""
         self.clear_screen()
         self.create_nav_buttons()
+
+        self.current_page = "received"  # Track the current page to stay on Received after deletion
 
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill=tk.BOTH, expand=True)
@@ -189,6 +191,7 @@ class ChatApp:
 
         self.unread_messages = []
         self.read_messages = []
+        
         for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
             message = msg_response["message"]
@@ -198,8 +201,8 @@ class ChatApp:
                 self.unread_messages.append(message)
 
         # Sort messages so newest ones appear first
-        self.unread_messages = sorted(self.unread_messages, key=lambda x: x["timestamp"], reverse=True)
-        self.read_messages = sorted(self.read_messages, key=lambda x: x["timestamp"], reverse=True)
+        self.read_messages.sort(key=lambda x: x["timestamp"], reverse=True)
+        self.unread_messages.sort(key=lambda x: x["timestamp"], reverse=True)
 
         unread_count = len(self.unread_messages)
 
@@ -219,14 +222,10 @@ class ChatApp:
         self.messages_frame = tk.Frame(self.home_frame)
         self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-        # Display previously read messages first (newest first)
+        # Display only read messages initially
         for message in self.read_messages:
             self.display_message(self.messages_frame, message, received=True)
-
-        # Display any previously loaded unread messages
-        for message in self.unread_messages:
-            self.display_message(self.messages_frame, message, received=True)
-
+    
     def fetch_unread_messages(self):
         """Displays the next N unread messages as requested by the user while keeping existing ones."""
         num_to_fetch = self.num_messages_var.get()
@@ -238,7 +237,8 @@ class ChatApp:
         # Fetch up to the requested number of unread messages
         messages_to_display = self.unread_messages[:num_to_fetch]
 
-        for message in messages_to_display:
+        # Insert new messages at the top instead of appending at the bottom
+        for message in (messages_to_display):  # Display newest unread messages first
             self.display_message(self.messages_frame, message, received=True)
 
         self.unread_messages = self.unread_messages[num_to_fetch:]  # Keep previously loaded unread messages
@@ -315,7 +315,7 @@ class ChatApp:
 
 
     def delete_selected_messages(self):
-        """Deletes selected messages and refreshes the current page."""
+        """Deletes selected messages and refreshes only the current page."""
         if not self.selected_messages:
             messagebox.showerror("Error", "No messages selected for deletion.")
             return
@@ -323,10 +323,10 @@ class ChatApp:
         client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid)
         self.selected_messages.clear()
 
-        # Stay on the current page
+        # Stay on the correct page after deleting
         if self.current_page == "sent":
             self.load_sent_messages()
-        else:
+        else:  # If it's not Sent, assume it's Received
             self.load_received_messages()
 
     def mark_message_read(self, mid):
