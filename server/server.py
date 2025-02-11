@@ -15,6 +15,7 @@ config.read("config.ini")
 
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])
+USE_WIRE_PROTOCOL = config.getboolean("network", "use_wire_protocol")
 
 sel = selectors.DefaultSelector()
 
@@ -26,7 +27,6 @@ with open("server/test/user.json", "r") as f:
 for k, v in users.items():
     user = dict_to_object_recursive(v, User)
     users_dict[user.uid] = user
-print("Accounts", list_accounts(users_dict)) 
 
 # Message dict
 messages_dict = dict()
@@ -36,7 +36,6 @@ with open("server/test/message.json", "r") as f:
 for k, v in messages.items():
     message = dict_to_object_recursive(v, Message)
     messages_dict[message.mid] = message
-print("Messages", messages_dict)
 
 # Keep track of connected, logged in clients by uid
 connected_clients = dict() # uid --> [addr, sock]
@@ -47,6 +46,22 @@ def write_users_messages_json(users_dict, messages_dict):
         json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
     with open("server/test/message.json", "w") as f:
         json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
+
+# Utility Functions for JSON/Wire Protocol Handling
+def send_response(data, response):
+    """Encapsulates response handling for JSON or wire protocol."""
+    if USE_WIRE_PROTOCOL:
+        encoded_response = response  # Placeholder for wire protocol
+    else:
+        encoded_response = json.dumps(response).encode("utf-8")
+
+    data.outb += encoded_response
+
+def parse_request(data):
+    """Encapsulates request handling for JSON or wire protocol."""
+    if USE_WIRE_PROTOCOL:
+        return data.inb  # Placeholder for wire protocol decoding
+    return json.loads(data.inb.decode("utf-8"))
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()
@@ -76,7 +91,9 @@ def service_connection(key, mask):
                     break  # Stop after removing the correct UID
 
         if data.inb:
-            message = json.loads(data.inb.decode("utf-8"))
+            # TODO: modify this part to convert wire protocol to JSON, then JSON load
+            message = parse_request(data)
+            # TODO: below, after each response construction, convert from JSON to wire protocol if flag is set
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
                 handle_login_request(data, sock, message, users_dict, connected_clients)
@@ -95,7 +112,6 @@ def service_connection(key, mask):
                     "success": message_sent
                 }
                 data.outb += json.dumps(response).encode("utf-8")
-                # TODO: deliver-message to receiver
             elif message["task"] == "get-sent-messages":
                 print(f"Get sent messages request from {message['sender']}")
                 response = {
