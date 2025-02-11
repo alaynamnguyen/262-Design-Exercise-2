@@ -204,5 +204,25 @@
         "mid": "5dcb817f-5e3c-4658-8754-03c3301a608e",
         "timestamp": "2025-02-10 20:16:20.174846",
         "receiver_read": false
+    },
+    "d61176f7-43db-4342-9229-e4b7792ce90b": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "sender_username": "jim",
+        "receiver_username": "jim",
+        "text": "hey jim",
+        "mid": "d61176f7-43db-4342-9229-e4b7792ce90b",
+        "timestamp": "2025-02-10 20:53:02.238459",
+        "receiver_read": false
+    },
+    "fe677818-7d6e-4d51-9324-9c8520c07ee2": {
+        "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "receiver": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
+        "sender_username": "jim",
+        "receiver_username": "jim",
+        "text": "onomatopoeia",
+        "mid": "fe677818-7d6e-4d51-9324-9c8520c07ee2",
+        "timestamp": "2025-02-10 20:53:28.735647",
+        "receiver_read": false
     }
 }

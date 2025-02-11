@@ -240,9 +240,27 @@ class ChatApp:
         tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
         tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
 
-        self.messages_frame = tk.Frame(self.home_frame)
-        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        # Scrollable Frame for Messages
+        messages_container = tk.Frame(self.home_frame)
+        messages_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
+        canvas = tk.Canvas(messages_container)
+        scrollbar = Scrollbar(messages_container, orient="vertical", command=canvas.yview)
+        self.messages_frame = tk.Frame(canvas)
+
+        # Bind scrolling event
+        self.messages_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=self.messages_frame, anchor="nw", width=canvas.winfo_width())
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig("all", width=e.width))
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
         # Display only read messages initially
         for message in self.read_messages:
             self.display_message(self.messages_frame, message, received=True)
@@ -288,8 +306,26 @@ class ChatApp:
         response = communication.build_and_send_task(self.sock, "get-sent-messages", sender=self.client_uid)
         mids = response["mids"]
 
-        self.messages_frame = tk.Frame(self.home_frame)
-        self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        # Scrollable Frame for Messages
+        messages_container = tk.Frame(self.home_frame)
+        messages_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+        canvas = tk.Canvas(messages_container)
+        scrollbar = Scrollbar(messages_container, orient="vertical", command=canvas.yview)
+        self.messages_frame = tk.Frame(canvas)
+
+        # Bind scrolling event
+        self.messages_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=self.messages_frame, anchor="nw", width=canvas.winfo_width())
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig("all", width=e.width))
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Fetch and display messages in reverse order (newest first)
         messages = []
