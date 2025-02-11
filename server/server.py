@@ -7,7 +7,7 @@ from model import User, Message
 from controller.login import handle_login_request
 from controller.accounts import list_accounts, delete_account
 from controller.messages import send_message, get_sent_messages_id, get_received_messages_id, delete_messages, mark_message_read, get_message_by_mid
-from utils import dict_to_object_recursive, object_to_dict_recursive
+from utils import dict_to_object_recursive, object_to_dict_recursive, parse_request, send_response
 
 # Load config
 config = configparser.ConfigParser()
@@ -47,22 +47,6 @@ def write_users_messages_json(users_dict, messages_dict):
     with open("server/test/message.json", "w") as f:
         json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
 
-# Utility Functions for JSON/Wire Protocol Handling
-def send_response(data, response):
-    """Encapsulates response handling for JSON or wire protocol."""
-    if USE_WIRE_PROTOCOL:
-        encoded_response = response  # Placeholder for wire protocol
-    else:
-        encoded_response = json.dumps(response).encode("utf-8")
-
-    data.outb += encoded_response
-
-def parse_request(data):
-    """Encapsulates request handling for JSON or wire protocol."""
-    if USE_WIRE_PROTOCOL:
-        return data.inb  # Placeholder for wire protocol decoding
-    return json.loads(data.inb.decode("utf-8"))
-
 def accept_wrapper(sock):
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
@@ -91,9 +75,7 @@ def service_connection(key, mask):
                     break  # Stop after removing the correct UID
 
         if data.inb:
-            # TODO: modify this part to convert wire protocol to JSON, then JSON load
-            message = parse_request(data)
-            # TODO: below, after each response construction, convert from JSON to wire protocol if flag is set
+            message = parse_request(data, USE_WIRE_PROTOCOL)
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
                 handle_login_request(data, sock, message, users_dict, connected_clients)
@@ -103,7 +85,7 @@ def service_connection(key, mask):
                     "task": "list-accounts-reply",
                     "accounts": list_accounts(users_dict, wildcard=message["wildcard"])
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "send-message":
                 print("Send message request: ", message)
                 message_sent = send_message(message["sender"], message["receiver"], message["text"], users_dict, messages_dict, timestamp=message["timestamp"], connected_clients=connected_clients)
@@ -111,7 +93,7 @@ def service_connection(key, mask):
                     "task": "send-message-reply",
                     "success": message_sent
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "get-sent-messages":
                 print(f"Get sent messages request from {message['sender']}")
                 response = {
@@ -119,7 +101,7 @@ def service_connection(key, mask):
                     "uid": message["sender"],
                     "mids": get_sent_messages_id(message["sender"], users_dict)
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "get-received-messages":
                 print(f"Get received messages request from {message['sender']}")
                 response = {
@@ -127,14 +109,14 @@ def service_connection(key, mask):
                     "uid": message["sender"],
                     "mids": get_received_messages_id(message["sender"], users_dict)
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "get-message-by-mid":
                 print(f"Get message by mid request for {message['mid']}")
                 response = {
                     "task": "get-message-by-mid-reply",
                     "message": get_message_by_mid(message["mid"], messages_dict)
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "mark-message-read":
                 print(f"Mark message read request for {message['mid']}")
                 response = {
@@ -142,7 +124,7 @@ def service_connection(key, mask):
                     "success": mark_message_read(messages_dict, message["mid"])
                 }
                 print("Updated message:", messages_dict[message["mid"]])
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "delete-messages":
                 print("Delete messages request:", message)
                 success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"], uid=message["uid"])
@@ -151,14 +133,14 @@ def service_connection(key, mask):
                     "deleted-mids": deleted_mids,
                     "success": success
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "delete-account":
                 print("Delete account request:", message)
                 response = {
                     "task": "delete-account-reply",
                     "success": delete_account(users_dict, message["uid"])
                 }
-                data.outb += json.dumps(response).encode("utf-8")
+                send_response(data, response, USE_WIRE_PROTOCOL)
             
             data.inb = b""
         

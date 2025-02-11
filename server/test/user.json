@@ -27,7 +27,9 @@
         "uid": "40b18422-da24-4f33-9031-2fcc609c86a1",
         "username": "joe",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
-        "received_messages": [],
+        "received_messages": [
+            "eb20346d-98c3-4591-b87f-6c6f98a50c8d"
+        ],
         "sent_messages": [],
         "active": true
     },
@@ -96,7 +98,8 @@
             "47acc852-d89f-4abc-bfd1-5c38997a4dfe"
         ],
         "sent_messages": [
-            "264339e7-bb23-4942-a8ce-8ded1d1d7879"
+            "264339e7-bb23-4942-a8ce-8ded1d1d7879",
+            "eb20346d-98c3-4591-b87f-6c6f98a50c8d"
         ],
         "active": true
     },

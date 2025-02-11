@@ -148,5 +148,15 @@
         "mid": "47acc852-d89f-4abc-bfd1-5c38997a4dfe",
         "timestamp": "2025-02-11 15:24:50.364607",
         "receiver_read": true
+    },
+    "eb20346d-98c3-4591-b87f-6c6f98a50c8d": {
+        "sender": "90c20039-0057-49f2-95d5-7682ba0777d3",
+        "receiver": "40b18422-da24-4f33-9031-2fcc609c86a1",
+        "sender_username": "jim",
+        "receiver_username": "joe",
+        "text": "CLT",
+        "mid": "eb20346d-98c3-4591-b87f-6c6f98a50c8d",
+        "timestamp": "2025-02-11 15:52:28.884784",
+        "receiver_read": false
     }
 }
