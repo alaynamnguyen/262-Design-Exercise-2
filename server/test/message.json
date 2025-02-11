@@ -45,7 +45,7 @@
         "text": "today is such a great day",
         "mid": "72eec44d-c24f-4061-9795-a957c604c603",
         "timestamp": "2025-02-09 22:58:36.475464",
-        "receiver_read": false
+        "receiver_read": true
     },
     "4d990fae-f8fa-471c-b0ed-9d6c78995fe4": {
         "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
@@ -53,7 +53,7 @@
         "text": "we don't have much time left",
         "mid": "4d990fae-f8fa-471c-b0ed-9d6c78995fe4",
         "timestamp": "2025-02-09 22:58:47.249144",
-        "receiver_read": false
+        "receiver_read": true
     },
     "014ce660-ef7d-4480-8ccd-19487ec50cba": {
         "sender": "2d1c3084-33d3-4f17-a3f7-a81002524fcd",
@@ -101,6 +101,38 @@
         "text": "theoe",
         "mid": "3743d0b9-3d14-41fd-9a7b-9b0225144485",
         "timestamp": "2025-02-10 19:00:20.714120",
+        "receiver_read": false
+    },
+    "f6889fe5-f2fe-444d-92c1-a537604b2ae8": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "well well well",
+        "mid": "f6889fe5-f2fe-444d-92c1-a537604b2ae8",
+        "timestamp": "2025-02-10 19:14:59.881483",
+        "receiver_read": false
+    },
+    "df5c033d-4114-4389-9e67-f14d8be7acb8": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "test1",
+        "mid": "df5c033d-4114-4389-9e67-f14d8be7acb8",
+        "timestamp": "2025-02-10 19:26:44.444281",
+        "receiver_read": true
+    },
+    "70bcdc73-0abd-40d9-9e5d-dfe2c2b0055d": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "test2",
+        "mid": "70bcdc73-0abd-40d9-9e5d-dfe2c2b0055d",
+        "timestamp": "2025-02-10 19:26:54.204192",
+        "receiver_read": true
+    },
+    "e66a3d42-8b8f-4eb5-a438-0b3e5df4dfc1": {
+        "sender": "371fb628-c002-42ac-94c8-99074adef005",
+        "receiver": "371fb628-c002-42ac-94c8-99074adef005",
+        "text": "hey",
+        "mid": "e66a3d42-8b8f-4eb5-a438-0b3e5df4dfc1",
+        "timestamp": "2025-02-10 19:39:04.922068",
         "receiver_read": false
     }
 }

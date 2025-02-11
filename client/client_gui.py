@@ -177,7 +177,7 @@ class ChatApp:
         self.load_received_messages()
 
     def load_received_messages(self):
-        """Fetch and display received messages with unread selection."""
+        """Fetch and display received messages in newest-first order with unread selection."""
         self.clear_screen()
         self.create_nav_buttons()
 
@@ -197,6 +197,10 @@ class ChatApp:
             else:
                 self.unread_messages.append(message)
 
+        # Sort messages so newest ones appear first
+        self.unread_messages = sorted(self.unread_messages, key=lambda x: x["timestamp"], reverse=True)
+        self.read_messages = sorted(self.read_messages, key=lambda x: x["timestamp"], reverse=True)
+
         unread_count = len(self.unread_messages)
 
         control_frame = tk.Frame(self.home_frame)
@@ -210,51 +214,74 @@ class ChatApp:
         self.num_messages_dropdown.pack(side=tk.LEFT, padx=5)
 
         tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
+        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
 
         self.messages_frame = tk.Frame(self.home_frame)
         self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
+        # Display previously read messages first (newest first)
         for message in self.read_messages:
             self.display_message(self.messages_frame, message, received=True)
 
+        # Display any previously loaded unread messages
+        for message in self.unread_messages:
+            self.display_message(self.messages_frame, message, received=True)
+
     def fetch_unread_messages(self):
-        """Displays the next N unread messages as requested by the user."""
+        """Displays the next N unread messages as requested by the user while keeping existing ones."""
         num_to_fetch = self.num_messages_var.get()
 
         if not self.unread_messages:
             messagebox.showinfo("Info", "No more unread messages.")
             return
 
+        # Fetch up to the requested number of unread messages
         messages_to_display = self.unread_messages[:num_to_fetch]
-        self.unread_messages = self.unread_messages[num_to_fetch:]
 
         for message in messages_to_display:
             self.display_message(self.messages_frame, message, received=True)
+
+        self.unread_messages = self.unread_messages[num_to_fetch:]  # Keep previously loaded unread messages
 
         self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
         self.num_messages_dropdown.config(to=len(self.unread_messages) if len(self.unread_messages) > 0 else 1)
 
     def load_sent_messages(self):
-        """Fetch and display sent messages."""
-        self.clear_content()
+        """Fetch and display sent messages with checkboxes for deletion, newest messages on top."""
+        self.clear_screen()
+        self.create_nav_buttons()
+
+        self.current_page = "sent"  # Track the current page to stay on Sent after deletion
+
+        self.home_frame = tk.Frame(self.root)
+        self.home_frame.pack(fill=tk.BOTH, expand=True)
+
+        # "Delete Selected" button at the top
+        control_frame = tk.Frame(self.home_frame)
+        control_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
 
         response = communication.build_and_send_task(self.sock, "get-sent-messages", sender=self.client_uid)
         mids = response["mids"]
 
-        self.messages_frame = tk.Frame(self.home_frame)  # Use self.home_frame
+        self.messages_frame = tk.Frame(self.home_frame)
         self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
+        # Fetch and display messages in reverse order (newest first)
+        messages = []
         for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
-            message = msg_response["message"]
+            messages.append(msg_response["message"])
+
+        for message in reversed(messages):  # Newest messages first
             self.display_message(self.messages_frame, message, received=False)
 
-        tk.Button(self.home_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(pady=5)
-
     def display_message(self, parent, message, received=True):
-        """Displays a single message in the UI."""
+        """Displays a single message in the UI and tracks its ID for selective updates."""
         frame = tk.Frame(parent, bg="lightgray", padx=5, pady=5)
         frame.pack(fill=tk.X, pady=5)
+        frame.message_mid = message["mid"]  # Store message ID for updates
 
         sender = "From" if received else "To"
         status = "🔴" if received and not message["receiver_read"] else ""
@@ -273,26 +300,52 @@ class ChatApp:
             if message["receiver_read"]:
                 mark_read_btn.config(state=tk.DISABLED)
 
-        delete_btn = tk.Button(btn_frame, text="Select for Delete", command=lambda: self.toggle_selection(message["mid"]), bg="red", fg="white")
-        delete_btn.pack(side=tk.RIGHT, padx=5)
+        # Replace delete button with a checkbox
+        delete_var = tk.BooleanVar()
+        checkbox = tk.Checkbutton(btn_frame, variable=delete_var, command=lambda: self.toggle_selection(message["mid"], delete_var))
+        checkbox.pack(side=tk.RIGHT, padx=5)
+        tk.Label(btn_frame, text="Select to Delete", font=("Arial", 10), bg="lightgray").pack(side=tk.RIGHT, padx=5)
 
-    def toggle_selection(self, mid):
-        """Adds/removes messages from the delete list."""
-        if mid in self.selected_messages:
-            self.selected_messages.remove(mid)
-        else:
+    def toggle_selection(self, mid, var):
+        """Tracks selected messages for deletion using checkboxes."""
+        if var.get():
             self.selected_messages.add(mid)
+        else:
+            self.selected_messages.discard(mid)
+
 
     def delete_selected_messages(self):
-        """Deletes selected messages."""
+        """Deletes selected messages and refreshes the current page."""
+        if not self.selected_messages:
+            messagebox.showerror("Error", "No messages selected for deletion.")
+            return
+
         client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid)
         self.selected_messages.clear()
-        self.load_received_messages()  # Refresh page
+
+        # Stay on the current page
+        if self.current_page == "sent":
+            self.load_sent_messages()
+        else:
+            self.load_received_messages()
 
     def mark_message_read(self, mid):
-        """Marks a message as read."""
+        """Marks a message as read without refreshing the entire page."""
         client_messages.mark_message_read(self.sock, mid)
-        self.load_received_messages()  # Refresh page
+
+        # Find the message and update its status
+        for widget in self.messages_frame.winfo_children():
+            if hasattr(widget, "message_mid") and widget.message_mid == mid:
+                for sub_widget in widget.winfo_children():
+                    if isinstance(sub_widget, tk.Label) and "🔴" in sub_widget.cget("text"):
+                        sub_widget.config(text=sub_widget.cget("text").replace("🔴", ""))  # Remove unread indicator
+                    if isinstance(sub_widget, tk.Button) and sub_widget.cget("text") == "Mark as Read":
+                        sub_widget.config(state=tk.DISABLED)  # Disable the Mark as Read button
+                break
+
+        # Update unread message count
+        self.unread_messages = [msg for msg in self.unread_messages if msg["mid"] != mid]
+        self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
 
     def clear_screen(self):
         for widget in self.root.winfo_children():

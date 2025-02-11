@@ -117,6 +117,7 @@ class ChatApp:
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Fetch all received messages
         response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
         mids = response["mids"]
 
@@ -132,6 +133,7 @@ class ChatApp:
 
         unread_count = len(self.unread_messages)
 
+        # Control section at the top
         control_frame = tk.Frame(self.home_frame)
         control_frame.pack(fill=tk.X, padx=10, pady=5)
 
@@ -144,10 +146,12 @@ class ChatApp:
 
         tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
 
+        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
+
         self.messages_frame = tk.Frame(self.home_frame)
         self.messages_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-        for message in self.read_messages:
+        for message in reversed(self.read_messages):
             self.display_message(self.messages_frame, message, received=True)
 
     def fetch_unread_messages(self):
@@ -161,21 +165,15 @@ class ChatApp:
         messages_to_display = self.unread_messages[:num_to_fetch]
         self.unread_messages = self.unread_messages[num_to_fetch:]
 
-        for message in messages_to_display:
+        for message in reversed(messages_to_display):
             self.display_message(self.messages_frame, message, received=True)
 
         self.unread_label.config(text=f"{len(self.unread_messages)} unread messages")
         self.num_messages_dropdown.config(to=len(self.unread_messages) if len(self.unread_messages) > 0 else 1)
 
-    def display_message(self, parent, message, received):
-        """Displays a single message."""
-        frame = tk.Frame(parent, bg="lightgray", padx=5, pady=5)
-        frame.pack(fill=tk.X, pady=5)
+    def delete_selected_messages(self):
+        """Deletes selected messages."""
+        client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid)
+        self.selected_messages.clear()
+        self.load_received_messages()
 
-        sender = "From" if received else "To"
-        status = "🔴" if received and not message["receiver_read"] else ""
-
-        header = f"{status} {sender} {message['sender'] if received else message['receiver']}\n{message['timestamp']}"
-        tk.Label(frame, text=header, font=("Arial", 10), bg="lightgray").pack(anchor="w")
-
-        tk.Label(frame, text=message["text"], font=("Arial", 12), bg="white", padx=5, pady=5).pack(fill=tk.X)
