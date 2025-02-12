@@ -2,6 +2,21 @@ from model import User
 from utils import send_response
 
 def check_username_exists(username: str, users_dict: dict):
+    """
+    Checks if a given username exists in the accounts dictionary and is active.
+
+    Parameters:
+    ----------
+    username : str
+        The username to check.
+    users_dict : dict
+        A dictionary of accounts.
+
+    Returns:
+    -------
+    str or None
+        Returns the user ID if the username exists and is active, otherwise returns None.
+    """
     print("Calling check_username_exists")
     for uid, user in users_dict.items():
         if user.username == username and user.active:
@@ -9,10 +24,44 @@ def check_username_exists(username: str, users_dict: dict):
     return None
 
 def check_username_password(uid: str, password: str, users_dict: dict):
+    """
+    Validates if the provided password matches the stored password for a given user ID.
+
+    Parameters:
+    ----------
+    uid : str
+        The unique identifier of the user.
+    password : str
+        The password to validate.
+    users_dict : dict
+        A dictionary of accounts.
+
+    Returns:
+    -------
+    bool
+        Returns True if the password matches, otherwise False.
+    """
     print("Calling check_username_password")
     return users_dict[uid].password == password
 
 def create_account(username: str, password: str, users_dict: dict):
+    """
+    Creates a new user account with the given username and password.
+
+    Parameters:
+    ----------
+    username : str
+        The desired username for the new account.
+    password : str
+        The password for the new account.
+    users_dict : dict
+        A dictionary of accounts.
+
+    Returns:
+    -------
+    str or None
+        Returns the user ID of the newly created account if successful, otherwise None if the username already exists.
+    """
     print("Calling create_account")
     if check_username_exists(username, users_dict):
         return None
@@ -22,10 +71,52 @@ def create_account(username: str, password: str, users_dict: dict):
     return user.uid
 
 def mark_client_connected(uid, addr, connected_clients, sock):
+    """
+    Marks a client as connected by storing their address and socket information.
+
+    Parameters:
+    ----------
+    uid : str
+        The unique identifier of the client.
+    addr : tuple
+        The address of the client (IP, port).
+    connected_clients : dict
+        A dictionary storing connected clients, mapping user IDs to their address and socket.
+    sock : socket
+        The socket object associated with the client.
+
+    Returns:
+    -------
+    None
+    """
     connected_clients[uid] = [addr, sock] # Mark this client as logged in and online
     # print("Connected clients:", connected_clients.keys())
 
 def handle_login_request(data, sock, message, users_dict, connected_clients, USE_WIRE_PROTOCOL):
+    """
+    Handles a client login request, processing both username and password authentication.
+
+    Parameters:
+    ----------
+    data : object
+        The data object containing client request details, including address information.
+    sock : socket
+        The socket associated with the client making the request.
+    message : dict
+        A dictionary containing the login request details, specifying the login task.
+    users_dict : dict
+        A dictionary storing user accounts, mapping user IDs to user objects.
+    connected_clients : dict
+        A dictionary tracking currently connected clients, mapping user IDs to their address and socket.
+    USE_WIRE_PROTOCOL : bool
+        A flag indicating whether to use the wire protocol for message transmission.
+
+    Returns:
+    -------
+    None
+        The function processes login requests and sends appropriate responses.
+    """
+        
     print("Calling handle_login_request")
     response = {}
     if message["task"] == "login-username":

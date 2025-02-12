@@ -42,12 +42,30 @@ connected_clients = dict() # uid --> [addr, sock]
 
 # For ease of seeing that things are deleted/added properly
 def write_users_messages_json(users_dict, messages_dict):
+    """
+    Saves the current state of users and messages to JSON files.
+
+    Parameters:
+    ----------
+    users_dict : dict
+        The dictionary storing user accounts.
+    messages_dict : dict
+        The dictionary storing messages.
+    """
     with open("server/test/user.json", "w") as f:
         json.dump(users_dict, f, default=object_to_dict_recursive, indent=4)
     with open("server/test/message.json", "w") as f:
         json.dump(messages_dict, f, default=object_to_dict_recursive, indent=4)
 
 def accept_wrapper(sock):
+    """
+    Accepts a new client connection and registers it with the selector.
+
+    Parameters:
+    ----------
+    sock : socket
+        The server socket that listens for incoming connections.
+    """
     conn, addr = sock.accept()
     print(f"Accepted connection from {addr}")
     conn.setblocking(False)
@@ -56,6 +74,16 @@ def accept_wrapper(sock):
     sel.register(conn, events, data=data)
 
 def service_connection(key, mask):
+    """
+    Processes incoming client requests, including login, messaging, and account management.
+
+    Parameters:
+    ----------
+    key : selectors.SelectorKey
+        The selector key representing the client socket.
+    mask : int
+        The I/O event mask indicating the readiness of the socket.
+    """
     sock = key.fileobj
     data = key.data
     if mask & selectors.EVENT_READ:

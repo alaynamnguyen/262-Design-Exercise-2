@@ -45,9 +45,13 @@
         "uid": "17b7fb45-b5b3-41d7-8856-b99141b03c83",
         "username": "gill",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
-        "received_messages": [],
+        "received_messages": [
+            "4b635f0a-2c97-4a87-b35b-c644546461d5",
+            "3349cf5e-dcc3-4185-a79b-1875b4b1cfee"
+        ],
         "sent_messages": [
-            "9c429fe4-3f04-4499-9e9e-195fa2684347"
+            "9c429fe4-3f04-4499-9e9e-195fa2684347",
+            "66511f26-d4e8-40bb-bd97-f9d0da232181"
         ],
         "active": true
     },
@@ -100,7 +104,9 @@
         "sent_messages": [
             "264339e7-bb23-4942-a8ce-8ded1d1d7879",
             "eb20346d-98c3-4591-b87f-6c6f98a50c8d",
-            "c01fc72a-14cd-4910-95a0-6fb0ff26e6c0"
+            "c01fc72a-14cd-4910-95a0-6fb0ff26e6c0",
+            "4b635f0a-2c97-4a87-b35b-c644546461d5",
+            "3349cf5e-dcc3-4185-a79b-1875b4b1cfee"
         ],
         "active": true
     },

@@ -41,6 +41,15 @@ def parse_request(data, USE_WIRE_PROTOCOL):
     return json.loads(data.inb.decode("utf-8"))
 
 def json_to_wire_protocol(json_message):
+    """
+    Encodes a JSON message into a wire protocol format.
+
+    Args:
+        json_message (dict): The JSON message to be encoded.
+
+    Returns:
+        bytes: The encoded message in wire protocol format.
+    """
     wire_message = f"{task_to_opcode[json_message['task']]}"
 
     if json_message["task"] == "login-username":
@@ -153,6 +162,15 @@ def json_to_wire_protocol(json_message):
     return wire_message.encode("utf-8")
 
 def wire_protocol_to_json(wire_message):
+    """
+    Decodes a wire protocol message into JSON format.
+
+    Args:
+        wire_message (bytes): The encoded message in wire protocol format.
+
+    Returns:
+        dict: The decoded message in JSON format.
+    """    
     print("Wire message received:", wire_message)
     json_message = {
         "task": opcode_to_task[wire_message[0]]

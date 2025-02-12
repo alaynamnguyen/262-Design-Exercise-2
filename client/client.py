@@ -30,6 +30,17 @@ delete-account              - Delete your account and exit
     print(help_text)
 
 def main():
+    """
+    Establishes a connection to the server and provides a command-line interface for interacting with the messaging system.
+
+    The function:
+    - Connects to the server using the configured host and port.
+    - Logs in the user or creates an account.
+    - Continuously processes user commands until the user exits or deletes their account.
+    
+    Raises:
+        - ConnectionError: If the socket connection to the server fails.
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((HOST, PORT))
         client_uid = client_login.cli_login(sock)
@@ -50,8 +61,6 @@ def main():
                 text = " ".join(text)
                 print("Sending message:", text)
                 communication.build_and_send_task(sock, "send-message", USE_WIRE_PROTOCOL, sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
-                # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
-                # TODO: restrict sending messages to only active users (UI side)
             elif message.startswith("get-sent-messages"):
                 communication.build_and_send_task(sock, "get-sent-messages", USE_WIRE_PROTOCOL, sender=client_uid)
             elif message.startswith("get-received-messages"):
