@@ -297,8 +297,8 @@ class ChatApp:
         )
         self.num_messages_dropdown.pack(side=tk.LEFT, padx=5)
 
-        tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
-        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
+        tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue").pack(side=tk.LEFT, padx=5)
+        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red").pack(side=tk.RIGHT, padx=5)
 
         # Scrollable Frame for Messages
         messages_container = tk.Frame(self.home_frame)
@@ -385,7 +385,7 @@ class ChatApp:
         control_frame = tk.Frame(self.home_frame)
         control_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
+        tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red").pack(side=tk.RIGHT, padx=5)
 
         response = communication.build_and_send_task(self.sock, "get-sent-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
         mids = response["mids"]
@@ -440,7 +440,8 @@ class ChatApp:
         btn_frame.pack(fill=tk.X)
 
         if received:
-            mark_read_btn = tk.Button(btn_frame, text="Mark as Read", command=lambda: self.mark_message_read(message["mid"]), bg="green", fg="white")
+            mark_read_btn = tk.Button(btn_frame, text="Mark as Read", command=lambda: self.mark_message_read(message["mid"]), bg="green")
+
             mark_read_btn.pack(side=tk.RIGHT, padx=5)
             if message["receiver_read"]:
                 mark_read_btn.config(state=tk.DISABLED)
