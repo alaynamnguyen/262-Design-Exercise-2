@@ -5,20 +5,26 @@ import configparser
 from controller import client_login, communication, client_messages, accounts
 from datetime import datetime
 import sys
+import argparse
 
 # Load config
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-# **Allow overriding the server IP via command-line argument**
-if len(sys.argv) > 1:
-    HOST = sys.argv[1]  # Use the provided IP address
-else:
-    HOST = config["network"]["host"]  # Default to config.ini
+# **Use argparse for flexible flag-based arguments**
+parser = argparse.ArgumentParser(description="Start the Chat Client with optional parameters.")
+parser.add_argument("--server-ip", type=str, help="Specify the server IP address")
+parser.add_argument("--poll-frequency", type=int, help="Set the polling frequency in milliseconds")
 
+args = parser.parse_args()
+
+# **Use provided arguments or fallback to config.ini**
+HOST = args.server_ip if args.server_ip else config["network"]["host"]
+POLL_FREQUENCY = args.poll_frequency if args.poll_frequency else 10000  # Default to 10s polling
 PORT = int(config["network"]["port"])
 USE_WIRE_PROTOCOL = config.getboolean("network", "use_wire_protocol")
 
+print(f"Starting ChatApp with server: {HOST}:{PORT}, Polling Frequency: {POLL_FREQUENCY}ms")
 class ChatApp:
     def __init__(self, root):
         self.root = root
@@ -245,7 +251,7 @@ class ChatApp:
 
             self.unread_label.config(text=f"{self.total_unread_count} unread messages ({self.unfetched_unread_count} unfetched)")
 
-        self.root.after(10000, self.poll_for_new_messages)  # Poll every 10 seconds
+        self.root.after(POLL_FREQUENCY, self.poll_for_new_messages)  # Poll every 10 seconds
 
     def load_received_messages(self):
         """Fetch and display only read messages. Resets fetch tracking when switching to 'Received'."""

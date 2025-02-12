@@ -98,17 +98,15 @@
         "username": "jim",
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
         "received_messages": [
-            "c01fc72a-14cd-4910-95a0-6fb0ff26e6c0",
-            "6a3034db-c605-4e1d-85f4-59237cb798e4",
-            "e724e7b5-74ef-4119-bc79-fc5ab73a24b8"
+            "e724e7b5-74ef-4119-bc79-fc5ab73a24b8",
+            "ef0ef61d-3506-4056-95e4-bfffd83126bf",
+            "fb5ff833-bb09-49fd-9028-87b613eb0ecb"
         ],
         "sent_messages": [
             "264339e7-bb23-4942-a8ce-8ded1d1d7879",
             "eb20346d-98c3-4591-b87f-6c6f98a50c8d",
-            "c01fc72a-14cd-4910-95a0-6fb0ff26e6c0",
             "4b635f0a-2c97-4a87-b35b-c644546461d5",
             "3349cf5e-dcc3-4185-a79b-1875b4b1cfee",
-            "6a3034db-c605-4e1d-85f4-59237cb798e4",
             "e724e7b5-74ef-4119-bc79-fc5ab73a24b8"
         ],
         "active": true
@@ -161,6 +159,17 @@
         "sent_messages": [
             "66f50aa8-1eb8-4525-9a83-35882bd7118d",
             "e9dd9528-dd1e-4c9f-b651-d21f4d08a889"
+        ],
+        "active": true
+    },
+    "1ca095ce-91a3-4bdb-bf97-243f4f9c881e": {
+        "uid": "1ca095ce-91a3-4bdb-bf97-243f4f9c881e",
+        "username": "ann",
+        "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
+        "received_messages": [],
+        "sent_messages": [
+            "ef0ef61d-3506-4056-95e4-bfffd83126bf",
+            "fb5ff833-bb09-49fd-9028-87b613eb0ecb"
         ],
         "active": true
     }

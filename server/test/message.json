@@ -237,7 +237,7 @@
         "text": "sdflksdf",
         "mid": "e724e7b5-74ef-4119-bc79-fc5ab73a24b8",
         "timestamp": "2025-02-12 01:24:10.114344",
-        "receiver_read": false
+        "receiver_read": true
     },
     "a2117e44-1804-4e47-8471-5a8774178f00": {
         "sender": "e6d0fe62-c348-4aff-9b31-d68fd1fcbd98",
@@ -307,6 +307,26 @@
         "text": "yinannnnnn",
         "mid": "e9dd9528-dd1e-4c9f-b651-d21f4d08a889",
         "timestamp": "2025-02-12 12:17:39.624926",
+        "receiver_read": false
+    },
+    "ef0ef61d-3506-4056-95e4-bfffd83126bf": {
+        "sender": "1ca095ce-91a3-4bdb-bf97-243f4f9c881e",
+        "receiver": "90c20039-0057-49f2-95d5-7682ba0777d3",
+        "sender_username": "ann",
+        "receiver_username": "jim",
+        "text": "ok",
+        "mid": "ef0ef61d-3506-4056-95e4-bfffd83126bf",
+        "timestamp": "2025-02-12 13:05:27.010153",
+        "receiver_read": true
+    },
+    "fb5ff833-bb09-49fd-9028-87b613eb0ecb": {
+        "sender": "1ca095ce-91a3-4bdb-bf97-243f4f9c881e",
+        "receiver": "90c20039-0057-49f2-95d5-7682ba0777d3",
+        "sender_username": "ann",
+        "receiver_username": "jim",
+        "text": "teehee",
+        "mid": "fb5ff833-bb09-49fd-9028-87b613eb0ecb",
+        "timestamp": "2025-02-12 13:07:47.352550",
         "receiver_read": false
     }
 }
