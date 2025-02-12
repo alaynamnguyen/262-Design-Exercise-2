@@ -1,40 +1,43 @@
-# Multi-Client Socket Server
+# CS 2620 Chat Application
 
-A Python server that handles multiple clients, supporting:
-
--   `count <words>` → Returns the number of words.
--   `translate <text>` → Converts text to Pig Latin.
+A real-time chat application built in Python using **sockets** and **Tkinter** for the GUI.  
+This application supports **multiple clients** and allows users to send and receive messages through a centralized server.
 
 ## Usage
 
-1. Configure PYTHONPATH:
+1. Configure PYTHONPATH and pip install pytest:
 
     Navigate to `262-Design-Exercise-1` directory.
 
     ```bash
+    pip install pytest
     export PYTHONPATH="$PWD"
     ```
 
 2. Start the server:
 
     ```bash
-    python server.py
+    python server/server.py
     ```
 
 3. Start a client:
 
     ```bash
-    python client.py
+    python client/client_gui.py --server-ip <server ip address> --poll-frequency <frequency to poll the server for messages>
     ```
 
-4. Enter commands:
-
-    ```bash
-    > count hello world
-    Server response: 2
-
-    > translate hello world
-    Server response: ellohay orldway
-    ```
+    --server-ip (Optional): The server’s IP address. Defaults to config.ini.
+    --poll-frequency (Optional): How often the client polls for new messages (default: 10000ms).
 
 Type `exit` to close the client.
+
+4. Configuration
+
+The config.ini file stores default settings:
+
+```
+[network]
+host = 0.0.0.0
+port = 65433
+use_wire_protocol = True
+```
