@@ -208,7 +208,7 @@ def wire_protocol_to_json(wire_message):
                 i += 2 + username_length
             json_message["accounts"] = accounts_list
 
-    elif json_message["task"] == "send-message":  # TODO: Test using UI
+    elif json_message["task"] == "send-message":
         # [op][client_uid 36][timestamp 26][receiver uname length][receipient uname][message]
         json_message["sender"] = wire_message[1:37]
         json_message["timestamp"] = wire_message[37:63]

@@ -4,12 +4,18 @@ import socket
 import configparser
 from controller import client_login, communication, client_messages, accounts
 from datetime import datetime
+import sys
 
 # Load config
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-HOST = config["network"]["host"]
+# **Allow overriding the server IP via command-line argument**
+if len(sys.argv) > 1:
+    HOST = sys.argv[1]  # Use the provided IP address
+else:
+    HOST = config["network"]["host"]  # Default to config.ini
+
 PORT = int(config["network"]["port"])
 USE_WIRE_PROTOCOL = config.getboolean("network", "use_wire_protocol")
 
@@ -55,10 +61,15 @@ class ChatApp:
         tk.Button(self.login_frame, text="Next", command=self.check_username, font=("Arial", 12)).pack(pady=10)
 
     def check_username(self):
-        """Checks if username exists and moves to password entry."""
+        """Checks if username is valid and exists, then moves to password entry."""
         username = self.username.get().strip()
+        
+        # **Enforce no commas in username**
         if not username:
             messagebox.showerror("Error", "Username cannot be empty.")
+            return
+        if "," in username:
+            messagebox.showerror("Error", "Username cannot contain commas.")
             return
 
         self.user_exists = client_login.check_username(self.sock, username, USE_WIRE_PROTOCOL)
@@ -508,6 +519,11 @@ class ChatApp:
                 widget.destroy()
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        print(f"Starting ChatApp with server: {sys.argv[1]}:{PORT}")
+    else:
+        print(f"Starting ChatApp with default server from config: {HOST}:{PORT}")
+    
     root = tk.Tk()
     app = ChatApp(root)
     root.mainloop()
