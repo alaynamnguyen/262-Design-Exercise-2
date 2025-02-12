@@ -24,7 +24,4 @@ def delete_account(users_dict: dict, uid: str):
     print("Setting user as inactive in users_dict", uid)
     # Set user as inactive in users_dict
     users_dict[uid].active = False
-    print("User statuses now:")
-    for user in users_dict.keys():
-        print(users_dict[user].username, "-->", users_dict[user].active)
     return True # success

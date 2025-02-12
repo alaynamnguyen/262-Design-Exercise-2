@@ -1,4 +1,3 @@
-import json
 from model import User
 from utils import send_response
 

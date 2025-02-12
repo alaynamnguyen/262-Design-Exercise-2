@@ -381,7 +381,6 @@ class ChatApp:
 
         sender = "From" if received else "To"
         status = "🔴" if received and not message["receiver_read"] else ""
-        print("MESSAGE", message)
 
         header = f"{status} {sender} {message['sender_username'] if received else message['receiver_username']}\n{message['timestamp']}"
         tk.Label(frame, text=header, font=("Arial", 10), bg="lightgray").pack(anchor="w")
