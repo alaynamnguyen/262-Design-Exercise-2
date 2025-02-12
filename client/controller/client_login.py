@@ -1,33 +1,27 @@
-import hashlib
+from utils import hash_password
 from .communication import build_and_send_task
 
-def hash_password(password):
-    """
-    Hashes a password using SHA-256.
-    """
-    return hashlib.sha256(password.encode()).hexdigest()
-
-def check_username(sock, username):
+def check_username(sock, username, use_wire_protocol):
     """
     Checks if the username exists on the server.
     """
-    response = build_and_send_task(sock, "login-username", username=username)
+    response = build_and_send_task(sock, "login-username", username=username, use_wire_protocol=use_wire_protocol)
     return response["user_exists"]
 
-def login_user(sock, username, password):
+def login_user(sock, username, password, use_wire_protocol):
     """
     Attempts to log in an existing user.
     """
     hashed_password = hash_password(password)
-    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
+    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password, use_wire_protocol=use_wire_protocol)
     return response
 
-def create_account(sock, username, password):
+def create_account(sock, username, password, use_wire_protocol):
     """
     Attempts to create a new account.
     """
     hashed_password = hash_password(password)
-    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password)
+    response = build_and_send_task(sock, "login-password", username=username, password=hashed_password, use_wire_protocol=use_wire_protocol)
     return response
 
 def cli_login(sock):

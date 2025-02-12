@@ -78,7 +78,7 @@ def service_connection(key, mask):
             message = parse_request(data, USE_WIRE_PROTOCOL)
             if message["task"].startswith("login"):
                 print("Calling handle_login_request")
-                handle_login_request(data, sock, message, users_dict, connected_clients)
+                handle_login_request(data, sock, message, users_dict, connected_clients, USE_WIRE_PROTOCOL)
             elif message["task"] == "list-accounts":
                 print("Calling list_accounts")
                 response = {

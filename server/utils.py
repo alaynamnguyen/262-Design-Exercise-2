@@ -51,11 +51,11 @@ def json_to_wire_protocol(json_message):
         
     else:
         raise NotImplementedError
-
-    return wire_message
+    print("Wire message constructed:", wire_message)
+    return wire_message.encode("utf-8")
 
 def wire_protocol_to_json(wire_message):
-    print("Wire message:", wire_message)
+    print("Wire message received:", wire_message)
     json_message = {
         "task": opcode_to_task[wire_message[0]]
     }

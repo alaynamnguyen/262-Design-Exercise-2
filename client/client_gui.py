@@ -61,7 +61,7 @@ class ChatApp:
             messagebox.showerror("Error", "Username cannot be empty.")
             return
 
-        self.user_exists = client_login.check_username(self.sock, username)
+        self.user_exists = client_login.check_username(self.sock, username, USE_WIRE_PROTOCOL)
         self.create_password_screen()
 
     def create_password_screen(self):
@@ -88,7 +88,7 @@ class ChatApp:
             return
 
         username = self.username.get()
-        response = client_login.login_user(self.sock, username, password) if self.user_exists else client_login.create_account(self.sock, username, password)
+        response = client_login.login_user(self.sock, username, password, USE_WIRE_PROTOCOL) if self.user_exists else client_login.create_account(self.sock, username, password, USE_WIRE_PROTOCOL)
 
         if response["login_success"]:
             self.client_uid = response["uid"]  # Store user ID
@@ -179,7 +179,7 @@ class ChatApp:
     def list_accounts(self):
         """Fetches and displays accounts based on wildcard search."""
         wildcard = self.search_entry.get().strip() or "*"
-        response = communication.build_and_send_task(self.sock, "list-accounts", wildcard=wildcard)
+        response = communication.build_and_send_task(self.sock, "list-accounts", USE_WIRE_PROTOCOL, wildcard=wildcard)
         self.recipient_listbox.delete(0, tk.END)
         for account in response["accounts"]:
             self.recipient_listbox.insert(tk.END, account)
@@ -202,14 +202,14 @@ class ChatApp:
             messagebox.showerror("Error", "Message exceeds 280 characters.")
             return
 
-        communication.build_and_send_task(self.sock, "send-message", sender=self.client_uid, receiver=recipient, text=message_text, timestamp=str(datetime.now()))
+        communication.build_and_send_task(self.sock, "send-message", USE_WIRE_PROTOCOL, sender=self.client_uid, receiver=recipient, text=message_text, timestamp=str(datetime.now()))
         messagebox.showinfo("Success", "Message sent successfully!")
         self.load_received_messages()
 
     def poll_for_new_messages(self):
         """Regularly fetches new messages and syncs cache with the server."""
         if self.current_page == "received":
-            response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
+            response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
             mids = response["mids"]
 
             # Remove messages from cache that no longer exist on server
@@ -223,7 +223,7 @@ class ChatApp:
             # Fetch new messages
             new_mids = [mid for mid in mids if mid not in self.received_message_cache]
             for mid in new_mids:
-                msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
+                msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
                 self.received_message_cache[mid] = msg_response["message"]
 
             # Update unread message counters correctly
@@ -246,12 +246,12 @@ class ChatApp:
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill=tk.BOTH, expand=True)
 
-        response = communication.build_and_send_task(self.sock, "get-received-messages", sender=self.client_uid)
+        response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
         mids = response["mids"]
 
         new_messages = [mid for mid in mids if mid not in self.received_message_cache]
         for mid in new_messages:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
+            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
             self.received_message_cache[mid] = msg_response["message"]
 
         sorted_messages = sorted(self.received_message_cache.values(), key=lambda x: x["timestamp"], reverse=True)
@@ -338,7 +338,7 @@ class ChatApp:
 
         tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red", fg="white").pack(side=tk.RIGHT, padx=5)
 
-        response = communication.build_and_send_task(self.sock, "get-sent-messages", sender=self.client_uid)
+        response = communication.build_and_send_task(self.sock, "get-sent-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
         mids = response["mids"]
 
         new_messages = []
@@ -347,7 +347,7 @@ class ChatApp:
                 new_messages.append(mid)
 
         for mid in new_messages:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", mid=mid)
+            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
             self.sent_message_cache[mid] = msg_response["message"]  # Store in cache
 
         # Sort messages so newest appear first
@@ -426,7 +426,7 @@ class ChatApp:
             messagebox.showerror("Error", "No messages selected for deletion.")
             return
 
-        client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid)
+        client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid, USE_WIRE_PROTOCOL)
 
         # Remove from local cache
         for mid in self.selected_messages:
@@ -442,7 +442,7 @@ class ChatApp:
 
     def mark_message_read(self, mid):
         """Marks a message as read on both the client and server without refreshing everything."""
-        client_messages.mark_message_read(self.sock, mid)
+        client_messages.mark_message_read(self.sock, mid, USE_WIRE_PROTOCOL)
 
         if mid in self.received_message_cache:
             self.received_message_cache[mid]["receiver_read"] = True

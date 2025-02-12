@@ -1,5 +1,6 @@
 import json
 from model import User
+from utils import send_response
 
 def check_username_exists(username: str, users_dict: dict):
     print("Calling check_username_exists")
@@ -25,7 +26,7 @@ def mark_client_connected(uid, addr, connected_clients, sock):
     connected_clients[uid] = [addr, sock] # Mark this client as logged in and online
     # print("Connected clients:", connected_clients.keys())
 
-def handle_login_request(data, sock, message, users_dict, connected_clients):
+def handle_login_request(data, sock, message, users_dict, connected_clients, USE_WIRE_PROTOCOL):
     print("Calling handle_login_request")
     response = {}
     if message["task"] == "login-username":
@@ -65,4 +66,4 @@ def handle_login_request(data, sock, message, users_dict, connected_clients):
             }
             mark_client_connected(uid, data.addr, connected_clients, sock)
 
-    data.outb += json.dumps(response).encode("utf-8")
+    send_response(data, response, USE_WIRE_PROTOCOL)

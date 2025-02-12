@@ -9,6 +9,7 @@ config.read("config.ini")
 
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])
+USE_WIRE_PROTOCOL = config.getboolean("network", "use_wire_protocol")
 
 def print_help():
     """
@@ -48,22 +49,22 @@ def main():
                 _, receiver, *text = message.split()
                 text = " ".join(text)
                 print("Sending message:", text)
-                communication.build_and_send_task(sock, "send-message", sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
+                communication.build_and_send_task(sock, "send-message", USE_WIRE_PROTOCOL, sender=client_uid, receiver=receiver, text=text, timestamp=str(datetime.now()))
                 # TODO: Receiver show "Received page" and call list-messages, sender return back to "Received page".
                 # TODO: restrict sending messages to only active users (UI side)
             elif message.startswith("get-sent-messages"):
-                communication.build_and_send_task(sock, "get-sent-messages", sender=client_uid)
+                communication.build_and_send_task(sock, "get-sent-messages", USE_WIRE_PROTOCOL, sender=client_uid)
             elif message.startswith("get-received-messages"):
-                communication.build_and_send_task(sock, "get-received-messages", sender=client_uid)
+                communication.build_and_send_task(sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=client_uid)
             elif message.startswith("get-message-by-mid"):
                 _, mid = message.split()
-                communication.build_and_send_task(sock, "get-message-by-mid", mid=mid)
+                communication.build_and_send_task(sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
             elif message.startswith("mark-message-read"):
                 _, mid = message.split()
-                client_messages.mark_message_read(sock, mid)
+                client_messages.mark_message_read(sock, mid, USE_WIRE_PROTOCOL)
             elif message.startswith("delete-messages"):
                 _, *mids = message.split() # TODO: later sub this with mids of selected messages from UI
-                client_messages.delete_messages(sock, mids, client_uid)
+                client_messages.delete_messages(sock, mids, client_uid, USE_WIRE_PROTOCOL)
             elif message.startswith("delete-account"):
                 success = accounts.delete_account(sock, client_uid)
                 if success:
