@@ -47,8 +47,7 @@
         "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
         "received_messages": [],
         "sent_messages": [
-            "9c429fe4-3f04-4499-9e9e-195fa2684347",
-            "1f9a11db-cd04-4092-8666-9b6f20b4ef63"
+            "9c429fe4-3f04-4499-9e9e-195fa2684347"
         ],
         "active": true
     },
@@ -116,6 +115,14 @@
             "d8fd2fec-1014-431e-ab7a-8174b1a409b3",
             "8fc20520-f65e-45f8-9bb8-ea17e8e4fa10"
         ],
+        "active": true
+    },
+    "a87b1f7b-0ff3-4ff4-bc64-bf7a4f4eea0b": {
+        "uid": "a87b1f7b-0ff3-4ff4-bc64-bf7a4f4eea0b",
+        "username": "stacy",
+        "password": "d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1",
+        "received_messages": [],
+        "sent_messages": [],
         "active": true
     }
 }

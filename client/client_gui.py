@@ -126,7 +126,7 @@ class ChatApp:
 
     def delete_account(self):
         """Deletes the user account and closes the application."""
-        response = accounts.delete_account(self.sock, self.client_uid)
+        response = accounts.delete_account(self.sock, self.client_uid, USE_WIRE_PROTOCOL)
         if response["success"]:
             messagebox.showinfo("Success", "Account successfully deleted. Closing application.")
             self.root.quit()  # Close the entire Tkinter app

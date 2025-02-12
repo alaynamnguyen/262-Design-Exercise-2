@@ -5,11 +5,25 @@ opcode_to_task = {
     "b": "login-username-reply",
     "c": "login-password",
     "d": "login-password-reply",
+    "e": "list-accounts",
+    "f": "list-accounts-reply",
+    "g": "send-message",
+    "h": "send-message-reply",
+    "i": "get-sent-messages",
+    "j": "get-sent-messages-reply",
+    "k": "get-received-messages",
+    "l": "get-received-messages-reply",
+    "m": "get-message-by-mid",
+    "n": "get-message-by-mid-reply",
+    "o": "mark-message-read",
+    "p": "mark-message-read-reply",
+    "q": "delete-messages",
+    "r": "delete-messages-reply",
+    "s": "delete-account",
+    "t": "delete-account-reply",
 }
 
-task_to_opcode = dict()
-for k, v in opcode_to_task.items():
-    task_to_opcode[v] = k
+task_to_opcode = {v: k for k, v in opcode_to_task.items()}
 
 # Utility Functions for JSON/Wire Protocol Handling
 def send_response(data, response, USE_WIRE_PROTOCOL):
@@ -49,6 +63,90 @@ def json_to_wire_protocol(json_message):
         wire_message += login_success + \
             json_message["uid"]
         
+    elif json_message["task"] == "list-accounts":
+        wire_message += json_message["wildcard"]
+
+    elif json_message["task"] == "list-accounts-reply":
+        accounts_str = ""
+        accounts_list = json_message["accounts"]
+        for account in accounts_list:
+            username_length = f'{len(account):02}'
+            accounts_str += username_length + account
+        wire_message += accounts_str
+        
+    elif json_message["task"] == "list-accounts":
+        wire_message += json_message["wildcard"]
+
+    elif json_message["task"] == "list-accounts-reply":
+        accounts_str = ""
+        accounts_list = json_message["accounts"]
+        for account in accounts_list:
+            username_length = f'{len(account):02}'
+            accounts_str += username_length + account
+        wire_message += accounts_str
+
+    elif json_message["task"] == "send-message":
+        # len(datetime.now) = 26
+        # [op][sender_uid 36][timestamp 26][receiver uname length][receipient uname][message]
+        receiver_username_length = f'{len(json_message["receiver"]):02}'
+        wire_message += json_message["sender"] + \
+            json_message["timestamp"] + \
+            receiver_username_length + \
+            json_message["receiver"] + \
+            json_message["text"]
+
+    elif json_message["task"] == "send-message-reply":
+        wire_message += str(json_message["success"])[0]
+    
+    elif json_message["task"] == "get-sent-messages" or json_message["task"] == "get-received-messages":
+        wire_message += json_message["sender"]
+
+    elif json_message["task"] == "get-sent-messages-reply" or json_message["task"] == "get-received-messages-reply":
+        # [op][uid 36][comma separated mids]
+        wire_message += json_message["uid"]
+        wire_message += ",".join(json_message["mids"])
+
+    elif json_message["task"] == "get-message-by-mid":
+        wire_message += json_message["mid"]
+
+    elif json_message["task"] == "get-message-by-mid-reply":
+        # [op][sender uid 36][receiver uid 36][mid 36][timestamp 26][T/F receiver]
+        # [len 2][sender username][len 2][receiver username][message is rest]]
+        print("JSON Message", json_message)
+        message = json_message["message"]
+        print("Message", message)
+        sender_len = f'{len(message["sender_username"]):02}'
+        receiver_len = f'{len(message["receiver_username"]):02}'
+        receiver_read = str(message["receiver_read"])[0]
+
+        wire_message += message["sender"] + \
+            message["receiver"] + \
+            message["mid"] + \
+            message["timestamp"] + \
+            receiver_read + \
+            sender_len + \
+            message["sender_username"] + \
+            receiver_len + \
+            message["receiver_username"] + \
+            message["text"]
+
+    elif json_message["task"] == "mark-message-read":
+        wire_message += json_message["mid"]
+
+    elif json_message["task"] == "mark-message-read-reply" or json_message["task"] == "delete-messages-reply":
+        wire_message += str(json_message["success"])[0]
+    
+    elif json_message["task"] == "delete-messages":
+        # [op][mid 36][uid 36]
+        wire_message += json_message["uid"] + \
+            ",".join(json_message["mids"])
+    
+    elif json_message["task"] == "delete-account":
+        wire_message += json_message["uid"]
+
+    elif json_message["task"] == "delete-account-reply":
+        wire_message += str(json_message["success"])[0]
+
     else:
         raise NotImplementedError
     print("Wire message constructed:", wire_message)
@@ -74,6 +172,84 @@ def wire_protocol_to_json(wire_message):
     
     elif json_message["task"] == "login-password-reply":
         json_message["login_success"] = (wire_message[1] == "T")
+        json_message["uid"] = wire_message[2: 2+36]
+
+    elif json_message["task"] == "list-accounts":
+        json_message["wildcard"] = wire_message[1:]
+
+    elif json_message["task"] == "list-accounts-reply":
+        if len(wire_message) <= 3:  # No accounts returned ([op code][2 digit username length])
+            json_message["accounts"] = []
+        else:
+            i = 1
+            accounts_list = []
+            while i != len(wire_message):
+                username_length = int(wire_message[i:i+2])
+                username = wire_message[i+2:i+2+username_length]
+                if len(username) > 0: accounts_list.append(username)
+                i += 2 + username_length
+            json_message["accounts"] = accounts_list
+
+    elif json_message["task"] == "send-message":  # TODO: Test using UI
+        # [op][client_uid 36][timestamp 26][receiver uname length][receipient uname][message]
+        json_message["sender"] = wire_message[1:37]
+        json_message["timestamp"] = wire_message[37:63]
+        receiver_length = int(wire_message[63:65])
+        json_message["receiver"] = wire_message[65:65+receiver_length]
+        json_message["text"] = wire_message[65+receiver_length:]
+
+    elif json_message["task"] == "send-message-reply":
+        json_message["success"] = (wire_message[1] == "T")
+    
+    elif json_message["task"] == "get-sent-messages" or json_message["task"] == "get-received-messages":
+        json_message["sender"] = wire_message[1:]
+
+    elif json_message["task"] == "get-sent-messages-reply" or json_message["task"] == "get-received-messages-reply":
+        # [op][uid 36][comma separated mids]
+        json_message["uid"] = wire_message[1:37]
+        if len(wire_message) <= 37:
+            json_message["mids"] = []
+        else:
+            json_message["mids"] = wire_message[37:].split(",")
+
+    elif json_message["task"] == "get-message-by-mid":
+        # [op][mid 36]
+        json_message["mid"] = wire_message[1:]
+
+    elif json_message["task"] == "get-message-by-mid-reply":
+        # [op][sender uid 36][receiver uid 36][mid 36][timestamp 26][T/F receiver]
+        # [len 2][sender username][len 2][receiver username][message is rest]]
+        message = dict()
+        message["sender"] = wire_message[1:1+36]
+        message["receiver"] = wire_message[37:37+36]
+        message["mid"] = wire_message[73:73+36]
+        message["timestamp"] = wire_message[109:109+26]
+        message["receiver_read"] = (wire_message[135] == "T")
+        
+        sender_len = int(wire_message[136:138])
+        message["sender_username"] = wire_message[138:138+sender_len]
+        receiver_len = int(wire_message[138+sender_len:140+sender_len])
+        message["receiver_username"] = wire_message[140+sender_len:140+sender_len+receiver_len]
+        message["text"] = wire_message[140+sender_len+receiver_len:]
+
+        json_message["message"] = message
+
+    elif json_message["task"] == "mark-message-read":
+        json_message["mid"] = wire_message[1:]
+
+    elif json_message["task"] == "mark-message-read-reply" or json_message["task"] == "delete-messages-reply":
+        json_message["success"] = (wire_message[1] == "T")
+    
+    elif json_message["task"] == "delete-messages":
+        json_message["uid"] = wire_message[1:37]
+        json_message["mids"] = wire_message[37:].split(",")
+
+    
+    elif json_message["task"] == "delete-account":
+        json_message["uid"] = wire_message[1:]
+
+    elif json_message["task"] == "delete-account-reply":
+        json_message["success"] = (wire_message[1] == "T")
         json_message["uid"] = wire_message[2:]
     else:
         raise NotImplementedError
@@ -94,30 +270,3 @@ def dict_to_object_recursive(dct, cls):
     for key, value in dct.items():
         setattr(obj, key, dict_to_object_recursive(value, globals().get(cls.__name__, object)) if isinstance(value, dict) else value)
     return obj
-
-if __name__ == "__main__":
-    # wire_m = json_to_wire_protocol(
-    #     {
-    #         "task": "login-username-reply",
-    #         "username": "yinan",
-    #         "user_exists": False
-    #     })
-    
-    # wire_m = json_to_wire_protocol(
-    #     {
-    #         "task": "login-password",
-    #         "username": "yinan",
-    #         "password": "abracadabra"
-    #     })
-
-    wire_m = json_to_wire_protocol(
-        {
-            "task": "login-password-reply",
-            "uid": "90c20039-0057-49f2-95d5-7682ba0777d3",
-            "login_success": True
-        })
-    
-    print(wire_m)
-    
-    json_m = wire_protocol_to_json(wire_m)
-    print(json_m)

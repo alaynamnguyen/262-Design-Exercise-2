@@ -44,7 +44,7 @@ def main():
             elif message.startswith("list-accounts"):
                 _, *wildcard = message.split()
                 wildcard = wildcard[0] if wildcard else "*"
-                accounts.list_accounts(sock, wildcard)
+                accounts.list_accounts(sock, wildcard, USE_WIRE_PROTOCOL)
             elif message.startswith("send-message"):
                 _, receiver, *text = message.split()
                 text = " ".join(text)
@@ -66,7 +66,7 @@ def main():
                 _, *mids = message.split() # TODO: later sub this with mids of selected messages from UI
                 client_messages.delete_messages(sock, mids, client_uid, USE_WIRE_PROTOCOL)
             elif message.startswith("delete-account"):
-                success = accounts.delete_account(sock, client_uid)
+                success = accounts.delete_account(sock, client_uid, USE_WIRE_PROTOCOL)
                 if success:
                     print("Account successfully deleted.")
                     break

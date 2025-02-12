@@ -120,17 +120,16 @@ def service_connection(key, mask):
             elif message["task"] == "mark-message-read":
                 print(f"Mark message read request for {message['mid']}")
                 response = {
-                    "task": "mark-message-read",
+                    "task": "mark-message-read-reply",
                     "success": mark_message_read(messages_dict, message["mid"])
                 }
                 print("Updated message:", messages_dict[message["mid"]])
                 send_response(data, response, USE_WIRE_PROTOCOL)
             elif message["task"] == "delete-messages":
                 print("Delete messages request:", message)
-                success, deleted_mids = delete_messages(users_dict, messages_dict, message["mids"], uid=message["uid"])
+                success, _ = delete_messages(users_dict, messages_dict, message["mids"], uid=message["uid"])
                 response = {
                     "task": "delete-messages-reply",
-                    "deleted-mids": deleted_mids,
                     "success": success
                 }
                 send_response(data, response, USE_WIRE_PROTOCOL)
