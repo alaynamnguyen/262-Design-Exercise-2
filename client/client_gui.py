@@ -237,7 +237,7 @@ class ChatApp:
         self.root.after(10000, self.poll_for_new_messages)  # Poll every 10 seconds
 
     def load_received_messages(self):
-        """Fetch and display received messages while keeping track of unfetched unread messages."""
+        """Fetch and display only read messages. Resets fetch tracking when switching to 'Received'."""
         self.clear_screen()
         self.create_nav_buttons()
 
@@ -246,28 +246,44 @@ class ChatApp:
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill=tk.BOTH, expand=True)
 
+        # **Reset tracking every time the user switches to Received**
+        self.displayed_mids.clear()
+
+        # Fetch all received message IDs
         response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
         mids = response["mids"]
 
-        new_messages = [mid for mid in mids if mid not in self.received_message_cache]
-        for mid in new_messages:
+        # Reset caches to ensure fresh data is stored
+        self.received_message_cache.clear()
+
+        # Fetch messages by MID and store them in the cache
+        for mid in mids:
             msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
             self.received_message_cache[mid] = msg_response["message"]
 
+        # Sort messages by timestamp (latest first)
         sorted_messages = sorted(self.received_message_cache.values(), key=lambda x: x["timestamp"], reverse=True)
 
+        # **Correctly update unread message counters**
         self.total_unread_count = sum(1 for msg in sorted_messages if not msg["receiver_read"])
-        self.unfetched_unread_count = self.total_unread_count
+        self.unfetched_unread_count = self.total_unread_count  # Ensure fetch count resets correctly
 
+        # UI Controls for fetching unread messages
         control_frame = tk.Frame(self.home_frame)
         control_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        self.unread_label = tk.Label(control_frame, text=f"{self.total_unread_count} unread messages ({self.unfetched_unread_count} unfetched)", font=("Arial", 14, "bold"))
+        self.unread_label = tk.Label(
+            control_frame, 
+            text=f"{self.total_unread_count} unread messages ({self.unfetched_unread_count} unfetched)", 
+            font=("Arial", 14, "bold")
+        )
         self.unread_label.pack(side=tk.LEFT, padx=5)
 
         self.num_messages_var = tk.IntVar(value=1)
-        self.num_messages_dropdown = tk.Spinbox(control_frame, from_=1, to=self.unfetched_unread_count if self.unfetched_unread_count > 0 else 1,
-                                                textvariable=self.num_messages_var, width=5)
+        self.num_messages_dropdown = tk.Spinbox(
+            control_frame, from_=1, to=self.unfetched_unread_count if self.unfetched_unread_count > 0 else 1,
+            textvariable=self.num_messages_var, width=5
+        )
         self.num_messages_dropdown.pack(side=tk.LEFT, padx=5)
 
         tk.Button(control_frame, text="Get N Unread", command=self.fetch_unread_messages, bg="blue", fg="white").pack(side=tk.LEFT, padx=5)
@@ -279,33 +295,53 @@ class ChatApp:
 
         canvas = tk.Canvas(messages_container)
         scrollbar = Scrollbar(messages_container, orient="vertical", command=canvas.yview)
-        self.messages_frame = tk.Frame(canvas)
 
-        self.messages_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=self.messages_frame, anchor="nw", width=canvas.winfo_width())
+        # Ensure messages_frame expands properly inside the canvas
+        self.messages_frame = tk.Frame(canvas, width=580)  # Ensure width matches the UI layout
+
+        # Make sure the messages frame resizes properly within the canvas
+        self.messages_frame.bind(
+            "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        # Ensure the messages frame expands horizontally within the canvas window
+        canvas_frame = canvas.create_window((0, 0), window=self.messages_frame, anchor="nw")
+
         canvas.configure(yscrollcommand=scrollbar.set)
-
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        canvas.bind("<Configure>", lambda e: canvas.itemconfig("all", width=e.width))
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        # Display only read messages initially
+        # Ensure proper layout resizing
+        self.messages_frame.update_idletasks()
+        canvas.itemconfig(canvas_frame, width=messages_container.winfo_width())
+
+        # **Show only read messages initially**
         for message in sorted_messages:
             if message["receiver_read"]:
                 self.display_message(self.messages_frame, message, received=True)
 
-        # Start periodic polling for new messages
+        # Ensure polling continues
         self.poll_for_new_messages()
 
     def fetch_unread_messages(self):
-        """Fetches the oldest unread messages first and updates UI correctly."""
+        """Fetches unread messages and displays them, while ensuring proper tracking."""
         num_to_fetch = self.num_messages_var.get()
 
         if self.unfetched_unread_count == 0:
             messagebox.showinfo("Info", "No more unread messages.")
             return
 
-        # Get only the unread messages that are NOT already displayed
+        # **Refetch received messages to ensure up-to-date data**
+        response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
+        mids = response["mids"]
+
+        # **Ensure message cache is up-to-date before fetching unread**
+        for mid in mids:
+            if mid not in self.received_message_cache:
+                msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
+                self.received_message_cache[mid] = msg_response["message"]
+
+        # **Get only unread messages that are NOT already displayed**
         unread_messages = sorted(
             [msg for mid, msg in self.received_message_cache.items() if not msg["receiver_read"] and mid not in self.displayed_mids],
             key=lambda x: x["timestamp"]
@@ -313,14 +349,16 @@ class ChatApp:
 
         messages_to_display = unread_messages[:num_to_fetch]
 
-        for message in messages_to_display:
-            self.display_message(self.messages_frame, message, received=True)
-            self.displayed_mids.add(message["mid"])  # Mark this message as displayed
+        if messages_to_display:
+            for message in messages_to_display:
+                self.display_message(self.messages_frame, message, received=True)
+                self.displayed_mids.add(message["mid"])  # Mark message as displayed
 
-        self.unfetched_unread_count -= len(messages_to_display)
+            # **Update unfetched count only after successfully displaying messages**
+            self.unfetched_unread_count = sum(1 for msg in self.received_message_cache.values() if not msg["receiver_read"] and msg["mid"] not in self.displayed_mids)
 
-        # Update UI counter
-        self.unread_label.config(text=f"{self.total_unread_count} unread messages ({self.unfetched_unread_count} unfetched)")
+            # **Refresh UI counter to match unread messages**
+            self.unread_label.config(text=f"{self.total_unread_count} unread messages ({self.unfetched_unread_count} unfetched)")
 
     def load_sent_messages(self):
         """Fetch and display sent messages using caching to reduce server requests."""
