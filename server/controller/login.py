@@ -26,20 +26,6 @@ def check_username_exists(username: str, users_dict: dict):
 def check_username_password(uid: str, password: str, users_dict: dict):
     """
     Validates if the provided password matches the stored password for a given user ID.
-
-    Parameters:
-    ----------
-    uid : str
-        The unique identifier of the user.
-    password : str
-        The password to validate.
-    users_dict : dict
-        A dictionary of accounts.
-
-    Returns:
-    -------
-    bool
-        Returns True if the password matches, otherwise False.
     """
     print("Calling check_username_password")
     return users_dict[uid].password == password
@@ -47,20 +33,6 @@ def check_username_password(uid: str, password: str, users_dict: dict):
 def create_account(username: str, password: str, users_dict: dict):
     """
     Creates a new user account with the given username and password.
-
-    Parameters:
-    ----------
-    username : str
-        The desired username for the new account.
-    password : str
-        The password for the new account.
-    users_dict : dict
-        A dictionary of accounts.
-
-    Returns:
-    -------
-    str or None
-        Returns the user ID of the newly created account if successful, otherwise None if the username already exists.
     """
     print("Calling create_account")
     if check_username_exists(username, users_dict):
