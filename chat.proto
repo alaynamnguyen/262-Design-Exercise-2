@@ -51,7 +51,7 @@ message DeleteAccountResponse {
 }
 
 message ListAccountsRequest {
-    string wildcard_pattern = 1;
+    string wildcard = 1;
 }
 
 message ListAccountsResponse {

@@ -9,6 +9,7 @@ import json
 import hashlib
 import configparser
 from controller.login import check_username_exists, check_username_password, create_account
+from controller.accounts import list_accounts, delete_account
 from model import User, Message
 from utils import dict_to_object_recursive, object_to_dict_recursive, parse_request, send_response
 
@@ -63,11 +64,10 @@ class ChatService(chat_pb2_grpc.ChatServiceServicer):
     def LoginPassword(self, request, context):
         """Handles login by verifying the hashed password."""
         print("Calling LoginPassword")
-        username = request.username.strip()
+        username = request.username
         password = request.password
 
         uid = check_username_exists(username, self.users_dict)
-        client_address = context.peer()
         if uid: # Existing account
             print(f'Existing account: {uid}')
             print("Password is correct:",check_username_password(uid, password, self.users_dict))
@@ -79,6 +79,19 @@ class ChatService(chat_pb2_grpc.ChatServiceServicer):
             print('Running create account')
             uid = create_account(username, password, self.users_dict)
             return chat_pb2.LoginPasswordResponse(success=True, uid=uid)
+        
+    def ListAccounts(self, request, context):
+        wildcard = request.wildcard
+        accounts = list_accounts(self.users_dict, wildcard=wildcard)
+        return chat_pb2.LoginPasswordResponse(accounts=accounts)
+    
+    def SendMessage(self, request, context):
+        pass
+        
+
+
+
+
     
 def serve():
     """Starts the gRPC server with only login flow."""
