@@ -78,11 +78,14 @@ def mark_message_read(server_address, mid):
 
         return response_dict
 
-def get_messages(server_address, client_uid):
+def get_messages(server_address, client_uid, is_receive):
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.GetMessagesRequest(uid=client_uid)
+
         response = stub.GetReceivedMessages(request)
+        if not is_receive:
+            response = stub.GetSentMessages(request)
         
         message = dict()
         message["mids"] = response.mids

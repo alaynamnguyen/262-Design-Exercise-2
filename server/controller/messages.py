@@ -27,7 +27,7 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
     bool
         Returns True if the message was successfully sent, otherwise False.
     """
-
+    print("Calling send message", receiver_username)
     receiver_uid = None
     for uid, user in users_dict.items():
         if user.username == receiver_username and user.active:
