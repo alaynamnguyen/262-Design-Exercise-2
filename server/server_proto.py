@@ -79,19 +79,41 @@ class ChatService(chat_pb2_grpc.ChatServiceServicer):
             print('Running create account')
             uid = create_account(username, password, self.users_dict)
             return chat_pb2.LoginPasswordResponse(success=True, uid=uid)
-        
+
+    def DeleteAccount(self, request, context):
+        print("Calling DeleteAccount")
+        pass
+   
     def ListAccounts(self, request, context):
+        print("Calling LoginPassword")
         wildcard = request.wildcard
         accounts = list_accounts(self.users_dict, wildcard=wildcard)
         return chat_pb2.LoginPasswordResponse(accounts=accounts)
     
     def SendMessage(self, request, context):
+        print("Calling SendMessage")
+        pass
+
+    def GetSentMessages(self, request, context):
+        print("Calling GetSentMessages")
+        pass
+
+    def GetReceivedMessages(self, request, context):
+        print("Calling GetReceivedMessages")
+        pass
+
+    def GetMessageByMid(self, request, context):
+        print("Calling GetMessageByMid")
+        pass
+
+    def MarkMessageRead(self, request, context):
+        print("Calling MarkMessageRead")
+        pass
+
+    def DeleteMessages(self, request, context):
+        print("Calling DeleteMessages")
         pass
         
-
-
-
-
     
 def serve():
     """Starts the gRPC server with only login flow."""
