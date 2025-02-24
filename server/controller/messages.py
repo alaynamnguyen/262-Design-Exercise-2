@@ -4,28 +4,6 @@ from utils import object_to_dict_recursive
 def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp, connected_clients=None): 
     """
     Sends a message from a sender to a recipient. If the recipient is online, they are notified immediately.
-
-    Parameters:
-    ----------
-    sender_uid : str
-        The unique identifier of the sender.
-    receiver_username : str
-        The username of the recipient.
-    text : str
-        The message content.
-    users_dict : dict
-        A dictionary storing user accounts, mapping user IDs to user objects.
-    messages_dict : dict
-        A dictionary storing sent messages, mapping message IDs to message objects.
-    timestamp : str
-        The timestamp indicating when the message was sent.
-    connected_clients : dict
-        A dictionary tracking currently connected clients, mapping user IDs to their address and socket.
-
-    Returns:
-    -------
-    bool
-        Returns True if the message was successfully sent, otherwise False.
     """
     print("Calling send message", receiver_username)
     receiver_uid = None
@@ -52,23 +30,6 @@ def send_message(sender_uid, receiver_username, text, users_dict, messages_dict,
 def delete_messages(users_dict, messages_dict, mids, uid):
     """
     Deletes messages from a user's sent and received messages lists.
-
-    Parameters:
-    ----------
-    users_dict : dict
-        A dictionary storing user accounts, mapping user IDs to user objects.
-    messages_dict : dict
-        A dictionary storing sent messages, mapping message IDs to message objects.
-    mids : list
-        A list of message IDs to be deleted.
-    uid : str
-        The unique identifier of the user requesting message deletion.
-
-    Returns:
-    -------
-    tuple (bool, list)
-        - bool: Returns True if all specified messages were deleted successfully, False if any message was not found.
-        - list: A list of successfully deleted message IDs.
     """
 
     deleted_mids = []
@@ -92,18 +53,6 @@ def delete_messages(users_dict, messages_dict, mids, uid):
 def mark_message_read(messages_dict, mid):
     """
     Marks a message as read by updating its read status.
-
-    Parameters:
-    ----------
-    messages_dict : dict
-        A dictionary storing sent messages, mapping message IDs to message objects.
-    mid : str
-        The unique identifier of the message to be marked as read.
-
-    Returns:
-    -------
-    bool
-        Returns True if the message was successfully marked as read, otherwise False.
     """
     if mid in messages_dict:
         messages_dict[mid].receiver_read = True
@@ -115,19 +64,6 @@ def mark_message_read(messages_dict, mid):
 def get_message_by_mid(mid, messages_dict):
     """
     Retrieves a message by its unique identifier and converts it to a dictionary.
-
-    Parameters:
-    ----------
-    mid : str
-        The unique identifier of the message.
-    messages_dict : dict
-        A dictionary storing messages, mapping message IDs to message objects.
-
-    Returns:
-    -------
-    dict or None
-        - The message object converted into a dictionary if found.
-        - Returns None if the message does not exist.
     """
     if mid in messages_dict:
         return object_to_dict_recursive(messages_dict[mid]) # Convert to dict
@@ -138,35 +74,11 @@ def get_message_by_mid(mid, messages_dict):
 def get_sent_messages_id(uid, users_dict):
     """
     Retrieves the message IDs of all messages sent by a specific user.
-
-    Parameters:
-    ----------
-    uid : str
-        The unique identifier of the user.
-    users_dict : dict
-        A dictionary storing user accounts, mapping user IDs to user objects.
-
-    Returns:
-    -------
-    list
-        A list of message IDs corresponding to the messages sent by the user.
     """
     return users_dict[uid].sent_messages
 
 def get_received_messages_id(uid, users_dict):
     """
     Retrieves the message IDs of all messages received by a specific user.
-
-    Parameters:
-    ----------
-    uid : str
-        The unique identifier of the user.
-    users_dict : dict
-        A dictionary storing user accounts, mapping user IDs to user objects.
-
-    Returns:
-    -------
-    list
-        A list of message IDs corresponding to the messages received by the user.
     """
     return users_dict[uid].received_messages

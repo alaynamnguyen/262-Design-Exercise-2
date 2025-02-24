@@ -16,17 +16,17 @@ def print_help():
     Prints a list of available commands and their descriptions.
     """
     help_text = """
-Available Commands:
--------------------
-help                        - Show this help message
-exit                        - Disconnect from the server and exit
-list-accounts [wildcard]    - List all accounts (optionally filtered by wildcard)
-send-message <user> <text>  - Send a message to a user
-get-sent-messages           - Retrieve messages you have sent
-get-received-messages       - Retrieve messages you have received
-delete-messages <ids>       - Delete messages by message IDs
-delete-account              - Delete your account and exit
-"""
+    Available Commands:
+    -------------------
+    help                        - Show this help message
+    exit                        - Disconnect from the server and exit
+    list-accounts [wildcard]    - List all accounts (optionally filtered by wildcard)
+    send-message <user> <text>  - Send a message to a user
+    get-sent-messages           - Retrieve messages you have sent
+    get-received-messages       - Retrieve messages you have received
+    delete-messages <ids>       - Delete messages by message IDs
+    delete-account              - Delete your account and exit
+    """
     print(help_text)
 
 def main():

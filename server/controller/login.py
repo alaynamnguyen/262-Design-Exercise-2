@@ -4,18 +4,6 @@ from utils import send_response
 def check_username_exists(username: str, users_dict: dict):
     """
     Checks if a given username exists in the accounts dictionary and is active.
-
-    Parameters:
-    ----------
-    username : str
-        The username to check.
-    users_dict : dict
-        A dictionary of accounts.
-
-    Returns:
-    -------
-    str or None
-        Returns the user ID if the username exists and is active, otherwise returns None.
     """
     print("Calling check_username_exists")
     for uid, user in users_dict.items():
@@ -45,21 +33,6 @@ def create_account(username: str, password: str, users_dict: dict):
 def mark_client_connected(uid, addr, connected_clients, sock):
     """
     Marks a client as connected by storing their address and socket information.
-
-    Parameters:
-    ----------
-    uid : str
-        The unique identifier of the client.
-    addr : tuple
-        The address of the client (IP, port).
-    connected_clients : dict
-        A dictionary storing connected clients, mapping user IDs to their address and socket.
-    sock : socket
-        The socket object associated with the client.
-
-    Returns:
-    -------
-    None
     """
     connected_clients[uid] = [addr, sock] # Mark this client as logged in and online
     # print("Connected clients:", connected_clients.keys())
@@ -67,26 +40,6 @@ def mark_client_connected(uid, addr, connected_clients, sock):
 def handle_login_request(data, sock, message, users_dict, connected_clients, USE_WIRE_PROTOCOL):
     """
     Handles a client login request, processing both username and password authentication.
-
-    Parameters:
-    ----------
-    data : object
-        The data object containing client request details, including address information.
-    sock : socket
-        The socket associated with the client making the request.
-    message : dict
-        A dictionary containing the login request details, specifying the login task.
-    users_dict : dict
-        A dictionary storing user accounts, mapping user IDs to user objects.
-    connected_clients : dict
-        A dictionary tracking currently connected clients, mapping user IDs to their address and socket.
-    USE_WIRE_PROTOCOL : bool
-        A flag indicating whether to use the wire protocol for message transmission.
-
-    Returns:
-    -------
-    None
-        The function processes login requests and sends appropriate responses.
     """
         
     print("Calling handle_login_request")
