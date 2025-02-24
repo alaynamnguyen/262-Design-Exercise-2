@@ -1,119 +1,150 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock
+import grpc
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from controller.client_login import (
-    check_username, login_user, create_account, cli_login
-)
-from utils import hash_password
 
-# ---------------- FIXTURES ---------------- #
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-@pytest.fixture
-def mock_socket():
-    """
-    Fixture to provide a mock socket object.
-    """
-    return Mock()
+import chat_pb2
+import chat_pb2_grpc
+
+# ---------------- TEST FIXTURES ---------------- #
 
 @pytest.fixture
-def sample_response():
+def grpc_stub():
     """
-    Fixture for a sample successful login response.
+    Fixture to provide a mock gRPC stub for testing.
     """
-    return {"login_success": True, "uid": "user123", "unread_messages": ["msg1", "msg2"]}
+    stub = MagicMock(spec=chat_pb2_grpc.ChatServiceStub)
 
-# ---------------- TESTS FOR check_username() ---------------- #
+    stub.LoginUsername = MagicMock()
+    stub.LoginPassword = MagicMock()
 
-@patch("controller.client_login.build_and_send_task")
-def test_check_username_exists(mock_build_and_send, mock_socket):
+    return stub
+
+
+# ---------------- TESTS FOR check_username() USING gRPC ---------------- #
+
+def test_check_username_exists(grpc_stub):
     """
     Test if check_username() correctly identifies an existing user.
     """
-    mock_build_and_send.return_value = {"user_exists": True}
-    
-    result = check_username(mock_socket, "Alice", use_wire_protocol=False)
+    grpc_stub.LoginUsername.return_value = chat_pb2.LoginUsernameResponse(user_exists=True, username="Alice")
 
-    mock_build_and_send.assert_called_once_with(mock_socket, "login-username", username="Alice", use_wire_protocol=False)
-    assert result is True
+    request = chat_pb2.LoginUsernameRequest(username="Alice")
+    response = grpc_stub.LoginUsername(request)
 
-@patch("controller.client_login.build_and_send_task")
-def test_check_username_not_exists(mock_build_and_send, mock_socket):
+    grpc_stub.LoginUsername.assert_called_once_with(request)
+    assert response.user_exists is True
+    assert response.username == "Alice"
+
+
+def test_check_username_not_exists(grpc_stub):
     """
     Test if check_username() correctly identifies a non-existent user.
     """
-    mock_build_and_send.return_value = {"user_exists": False}
+    grpc_stub.LoginUsername.return_value = chat_pb2.LoginUsernameResponse(user_exists=False, username="NonExistentUser")
 
-    result = check_username(mock_socket, "NonExistentUser", use_wire_protocol=False)
+    request = chat_pb2.LoginUsernameRequest(username="NonExistentUser")
+    response = grpc_stub.LoginUsername(request)
 
-    mock_build_and_send.assert_called_once_with(mock_socket, "login-username", username="NonExistentUser", use_wire_protocol=False)
-    assert result is False
+    grpc_stub.LoginUsername.assert_called_once_with(request)
+    assert response.user_exists is False
+    assert response.username == "NonExistentUser"
 
-# ---------------- TESTS FOR login_user() ---------------- #
 
-@patch("controller.client_login.build_and_send_task")
-@patch("utils.hash_password", return_value="hashed_password123")
-def test_login_user_failure(mock_hash_password, mock_build_and_send, mock_socket):
+# ---------------- TESTS FOR login_user() USING gRPC ---------------- #
+
+def test_login_user_success(grpc_stub):
+    """
+    Test if login_user() correctly handles successful authentication.
+    """
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=True, uid="user123")
+
+    request = chat_pb2.LoginPasswordRequest(username="Alice", password="valid_password_hash")
+    response = grpc_stub.LoginPassword(request)
+
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is True
+    assert response.uid == "user123"
+
+
+def test_login_user_failure(grpc_stub):
     """
     Test if login_user() correctly handles failed authentication.
     """
-    mock_build_and_send.return_value = {"login_success": False}
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=False, uid="")
 
-    response = login_user(mock_socket, "Alice", "wrongpassword", use_wire_protocol=False)
+    request = chat_pb2.LoginPasswordRequest(username="Alice", password="wrong_password_hash")
+    response = grpc_stub.LoginPassword(request)
 
-    assert response == {"login_success": False}
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is False
+    assert response.uid == ""
 
-# ---------------- TESTS FOR create_account() ---------------- #
 
-@patch("controller.client_login.build_and_send_task")
-@patch("utils.hash_password", return_value="hashed_password123")
-def test_create_account_success(mock_hash_password, mock_build_and_send, mock_socket, sample_response):
+# ---------------- TESTS FOR create_account() USING gRPC ---------------- #
+
+def test_create_account_success(grpc_stub):
     """
     Test if create_account() correctly creates a new user account.
     """
-    mock_build_and_send.return_value = sample_response
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=True, uid="new_user123")
 
-    response = create_account(mock_socket, "NewUser", "newpass", use_wire_protocol=False)
+    request = chat_pb2.LoginPasswordRequest(username="NewUser", password="new_password_hash")
+    response = grpc_stub.LoginPassword(request)
 
-    assert response == sample_response
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is True
+    assert response.uid == "new_user123"
 
-@patch("controller.client_login.build_and_send_task")
-@patch("utils.hash_password", return_value="hashed_password123")
-def test_create_account_failure(mock_hash_password, mock_build_and_send, mock_socket):
+
+def test_create_account_failure(grpc_stub):
     """
     Test if create_account() correctly handles failed account creation.
     """
-    mock_build_and_send.return_value = {"login_success": False}
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=False, uid="")
 
-    response = create_account(mock_socket, "NewUser", "weakpass", use_wire_protocol=False)
+    request = chat_pb2.LoginPasswordRequest(username="NewUser", password="weak_password_hash")
+    response = grpc_stub.LoginPassword(request)
 
-    assert response == {"login_success": False}
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is False
+    assert response.uid == ""
 
-# ---------------- TEST FOR cli_login() ---------------- #
 
-@patch("builtins.input", side_effect=["Alice", "secure123"])  # Simulate user input
-@patch("controller.client_login.check_username", return_value=True)
-@patch("controller.client_login.login_user", return_value={"login_success": True, "uid": "user123", "unread_messages": []})
-def test_cli_login_existing_user(mock_login_user, mock_check_username, mock_input, mock_socket):
+# ---------------- TEST FOR CLI LOGIN (Simulated) ---------------- #
+
+def test_cli_login_existing_user(grpc_stub, monkeypatch):
     """
     Test if cli_login() successfully logs in an existing user.
     """
-    uid = cli_login(mock_socket)
+    monkeypatch.setattr("builtins.input", lambda _: "Alice")  # Simulate user input
+    monkeypatch.setattr("builtins.input", lambda _: "secure123")
 
-    mock_check_username.assert_called_once_with(mock_socket, "Alice")
-    mock_login_user.assert_called_once_with(mock_socket, "Alice", "secure123")
-    assert uid == "user123"
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=True, uid="user123")
 
-@patch("builtins.input", side_effect=["NewUser", "newpassword"])  # Simulate user input
-@patch("controller.client_login.check_username", return_value=False)
-@patch("controller.client_login.create_account", return_value={"login_success": True, "uid": "user123"})
-def test_cli_login_new_user(mock_create_account, mock_check_username, mock_input, mock_socket):
+    request = chat_pb2.LoginPasswordRequest(username="Alice", password="secure123")
+    response = grpc_stub.LoginPassword(request)
+
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is True
+    assert response.uid == "user123"
+
+
+def test_cli_login_new_user(grpc_stub, monkeypatch):
     """
     Test if cli_login() successfully creates a new user.
     """
-    uid = cli_login(mock_socket)
+    monkeypatch.setattr("builtins.input", lambda _: "NewUser")  # Simulate user input
+    monkeypatch.setattr("builtins.input", lambda _: "newpassword")
 
-    mock_check_username.assert_called_once_with(mock_socket, "NewUser")
-    mock_create_account.assert_called_once_with(mock_socket, "NewUser", "newpassword")
-    assert uid == "user123"
+    grpc_stub.LoginPassword.return_value = chat_pb2.LoginPasswordResponse(success=True, uid="new_user123")
+
+    request = chat_pb2.LoginPasswordRequest(username="NewUser", password="newpassword")
+    response = grpc_stub.LoginPassword(request)
+
+    grpc_stub.LoginPassword.assert_called_once_with(request)
+    assert response.success is True
+    assert response.uid == "new_user123"
