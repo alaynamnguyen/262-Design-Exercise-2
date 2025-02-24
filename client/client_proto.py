@@ -245,7 +245,7 @@ class ChatApp:
     def poll_for_new_messages(self):
         """Regularly fetches new messages and syncs cache with the server."""
         if self.current_page == "received":
-            response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
+            response = communication.get_messages(SERVER_ADDRESS, self.client_uid, True)
             mids = response["mids"]
 
             # Remove messages from cache that no longer exist on server
@@ -286,7 +286,7 @@ class ChatApp:
         self.displayed_mids.clear()
 
         # Fetch all received message IDs
-        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid, True)
         mids = response["mids"]
 
         # Reset caches to ensure fresh data is stored
@@ -367,7 +367,7 @@ class ChatApp:
             return
 
         # **Refetch received messages to ensure up-to-date data**
-        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid, True)
         mids = response["mids"]
 
         # **Ensure message cache is up-to-date before fetching unread**
@@ -410,7 +410,7 @@ class ChatApp:
 
         tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red").pack(side=tk.RIGHT, padx=5)
 
-        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid, False)
         mids = response["mids"]
 
         new_messages = []
