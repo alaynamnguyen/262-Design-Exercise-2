@@ -7,7 +7,7 @@ This application supports **multiple clients** and allows users to send and rece
 
 1. Configure PYTHONPATH and pip install pytest:
 
-    Navigate to `262-Design-Exercise-1` directory.
+    Navigate to `262-Design-Exercise-2` directory.
 
     ```bash
     pip install pytest
@@ -17,13 +17,13 @@ This application supports **multiple clients** and allows users to send and rece
 2. Start the server:
 
     ```bash
-    python server/server.py
+    python server/server_proto.py
     ```
 
 3. Start a client:
 
     ```bash
-    python client/client_gui.py --server-ip <server ip address> --poll-frequency <frequency to poll the server for messages>
+    python client/client_proto.py --server-ip <server ip address> --poll-frequency <frequency to poll the server for messages>
     ```
 
     --server-ip (Optional): The server’s IP address. Defaults to config.ini.
