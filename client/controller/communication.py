@@ -9,14 +9,6 @@ import chat_pb2_grpc
 def build_and_send_task(sock, task, use_wire_protocol, **kwargs):
     """
     Builds a task message and sends it to the server.
-
-    Args:
-        sock (socket.socket): The socket connected to the server.
-        task (str): The task to perform.
-        kwargs: Additional keyword arguments to include in the message.
-
-    Returns:
-        dict: The response from the server.
     """
     message = {"task": task}
     message.update(kwargs)
@@ -24,6 +16,7 @@ def build_and_send_task(sock, task, use_wire_protocol, **kwargs):
     return receive_response(sock, use_wire_protocol)
 
 def delete_messages(server_address, uid, mids):
+    """Sends a request to delete multiple messages for a user."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.DeleteMessagesRequest(uid=uid, mids=mids)
@@ -35,6 +28,7 @@ def delete_messages(server_address, uid, mids):
         return response_dict
 
 def send_message(server_address, sender, receiver_username, text, timestamp):
+    """Sends a message from one user to another via the server."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.SendMessageRequest(sender=sender, receiver_username=receiver_username, text=text, timestamp=timestamp)
@@ -46,6 +40,7 @@ def send_message(server_address, sender, receiver_username, text, timestamp):
         return response_dict
 
 def list_accounts(server_address, wildcard):
+    """Requests a list of accounts matching a wildcard search."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.ListAccountsRequest(wildcard=wildcard)
@@ -57,6 +52,7 @@ def list_accounts(server_address, wildcard):
         return response_dict
     
 def delete_account(server_address, uid):
+    """Sends a request to delete a user account."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.DeleteAccountRequest(uid=uid)
@@ -68,6 +64,7 @@ def delete_account(server_address, uid):
         return response_dict
     
 def mark_message_read(server_address, mid):
+    """Marks a specific message as read on the server."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.MarkMessageReadRequest(mid=mid)
@@ -79,6 +76,7 @@ def mark_message_read(server_address, mid):
         return response_dict
 
 def get_messages(server_address, client_uid, is_receive):
+    """Retrieves a list of sent or received message IDs for a user."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.GetMessagesRequest(uid=client_uid)
@@ -93,6 +91,7 @@ def get_messages(server_address, client_uid, is_receive):
         return message
 
 def get_message_by_mid(server_address, mid):
+    """Fetches the details of a message using its message ID."""
     with grpc.insecure_channel(server_address) as channel:
         stub = chat_pb2_grpc.ChatServiceStub(channel)
         request = chat_pb2.GetMessageRequest(mid=mid)
