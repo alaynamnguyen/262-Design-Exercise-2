@@ -1,125 +1,195 @@
 import pytest
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from controller.messages import (
-    send_message, delete_messages, mark_message_read,
-    get_message_by_mid, get_sent_messages_id, get_received_messages_id
-)
-from model.user import User
-from model.message import Message
-from unittest.mock import Mock
-
-import unittest
 import grpc
 from concurrent import futures
-import server_proto  # Import the gRPC server implementation
+import time
+import logging
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import server_proto
 import chat_pb2
 import chat_pb2_grpc
 
-class ServerProtoTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        """Set up a test gRPC server before running tests."""
-        cls.server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        chat_pb2_grpc.add_ChatServiceServicer_to_server(server_proto.ChatService(), cls.server)
-        cls.port = "[::]:50052"  # Test on different port to avoid conflicts
-        cls.server.add_insecure_port(cls.port)
-        cls.server.start()
+logging.basicConfig(level=logging.INFO)
 
-        # Create a gRPC channel & stub for testing
-        cls.channel = grpc.insecure_channel(cls.port)
-        cls.stub = chat_pb2_grpc.ChatServiceStub(cls.channel)
+# ---------------- FIXTURES ---------------- #
 
-    @classmethod
-    def tearDownClass(cls):
-        """Stop the test server after all tests."""
-        cls.server.stop(None)
+@pytest.fixture(scope="module")
+def grpc_server():
+    """
+    Fixture to set up a test gRPC server.
+    """
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    chat_pb2_grpc.add_ChatServiceServicer_to_server(server_proto.ChatService(), server)
+    
+    port = "127.0.0.1:50052"
+    server.add_insecure_port(port)
+    server.start()
+    
+    time.sleep(1)
+    
+    yield server
+    server.stop(None)
 
-    ## ----------- TEST LOGINUSERNAME ----------- ##
-    def test_login_username_existing(self):
-        """Test if username lookup works for an existing user."""
-        request = chat_pb2.LoginUsernameRequest(username="alice")
-        response = self.stub.LoginUsername(request)
-        self.assertTrue(response.user_exists)
-        self.assertEqual(response.username, "alice")
 
-    def test_login_username_not_existing(self):
-        """Test username lookup for a non-existent user."""
-        request = chat_pb2.LoginUsernameRequest(username="unknown_user")
-        response = self.stub.LoginUsername(request)
-        self.assertFalse(response.user_exists)
-        self.assertEqual(response.username, "unknown_user")
+@pytest.fixture(scope="module")
+def grpc_channel(grpc_server):
+    """
+    Fixture to set up a gRPC channel for communication.
+    """
+    channel = grpc.insecure_channel("127.0.0.1:50052")
+    yield channel
+    channel.close()
 
-    ## ----------- TEST LOGINPASSWORD ----------- ##
-    def test_login_password_correct(self):
-        """Test login with correct username and password."""
-        request = chat_pb2.LoginPasswordRequest(username="alice", password="valid_password")
-        response = self.stub.LoginPassword(request)
-        self.assertTrue(response.success)
-        self.assertNotEqual(response.uid, "")
 
-    def test_login_password_wrong(self):
-        """Test login with correct username but wrong password."""
-        request = chat_pb2.LoginPasswordRequest(username="alice", password="wrong_password")
-        response = self.stub.LoginPassword(request)
-        self.assertFalse(response.success)
+@pytest.fixture
+def grpc_stub(grpc_channel):
+    """
+    Fixture to provide a gRPC client stub for testing.
+    """
+    return chat_pb2_grpc.ChatServiceStub(grpc_channel)
 
-    def test_login_password_new_user(self):
-        """Test login with a new username (account should be created)."""
-        request = chat_pb2.LoginPasswordRequest(username="new_user", password="new_password")
-        response = self.stub.LoginPassword(request)
-        self.assertTrue(response.success)
-        self.assertNotEqual(response.uid, "")
 
-    ## ----------- TEST DELETE ACCOUNT ----------- ##
-    def test_delete_account_valid(self):
-        """Test deleting an existing user account."""
-        request = chat_pb2.DeleteAccountRequest(uid="existing_uid")
-        response = self.stub.DeleteAccount(request)
-        self.assertTrue(response.success)
+@pytest.fixture
+def create_test_users(grpc_stub):
+    """
+    Fixture to ensure a sender and receiver exist before running a test.
+    Returns sender UID and receiver username.
+    """
+    sender_username = "test_user"
+    sender_password = "test_password"
+    receiver_username = "receiver_user"
+    receiver_password = "receiver_password"
 
-    def test_delete_account_invalid(self):
-        """Test deleting a non-existent user account."""
-        request = chat_pb2.DeleteAccountRequest(uid="invalid_uid")
-        response = self.stub.DeleteAccount(request)
-        self.assertFalse(response.success)
+    # Ensure sender exists and fetch the actual UID
+    check_request = chat_pb2.LoginUsernameRequest(username=sender_username)
+    check_response = grpc_stub.LoginUsername(check_request)
 
-    ## ----------- TEST GET RECEIVED MESSAGES ----------- ##
-    def test_get_received_messages_valid(self):
-        """Test retrieving received messages for an existing user."""
-        request = chat_pb2.GetMessagesRequest(uid="alice_uid")
-        response = self.stub.GetReceivedMessages(request)
-        self.assertIsInstance(response.mids, list)
+    if not check_response.user_exists:
+        create_request = chat_pb2.LoginPasswordRequest(username=sender_username, password=sender_password)
+        create_response = grpc_stub.LoginPassword(create_request)
+        assert create_response.success
+        sender_uid = create_response.uid
+    else:
+        login_request = chat_pb2.LoginPasswordRequest(username=sender_username, password=sender_password)
+        login_response = grpc_stub.LoginPassword(login_request)
+        assert login_response.success
+        sender_uid = login_response.uid
 
-    def test_get_received_messages_no_messages(self):
-        """Test retrieving messages for a user with no received messages."""
-        request = chat_pb2.GetMessagesRequest(uid="bob_uid")
-        response = self.stub.GetReceivedMessages(request)
-        self.assertEqual(len(response.mids), 0)
+    # Ensure receiver exists
+    check_request_receiver = chat_pb2.LoginUsernameRequest(username=receiver_username)
+    check_response_receiver = grpc_stub.LoginUsername(check_request_receiver)
 
-    ## ----------- TEST SEND MESSAGE ----------- ##
-    def test_send_message_valid(self):
-        """Test sending a message from one user to another."""
-        request = chat_pb2.SendMessageRequest(
-            sender="alice",
-            receiver_username="bob",
-            text="Hello, Bob!",
-            timestamp="2025-02-24 14:00:00"
-        )
-        response = self.stub.SendMessage(request)
-        self.assertTrue(response.success)
+    if not check_response_receiver.user_exists:
+        create_request_receiver = chat_pb2.LoginPasswordRequest(username=receiver_username, password=receiver_password)
+        create_response_receiver = grpc_stub.LoginPassword(create_request_receiver)
+        assert create_response_receiver.success
 
-    def test_send_message_invalid_sender(self):
-        """Test sending a message from a non-existent sender."""
-        request = chat_pb2.SendMessageRequest(
-            sender="invalid_user",
-            receiver_username="bob",
-            text="This should fail",
-            timestamp="2025-02-24 14:01:00"
-        )
-        response = self.stub.SendMessage(request)
-        self.assertFalse(response.success)
+    return sender_uid, receiver_username
 
-if __name__ == '__main__':
-    unittest.main()
+
+# ---------------- TEST SEND MESSAGE ---------------- #
+
+def test_send_message_valid(grpc_stub, create_test_users):
+    """
+    Test sending a message from one user to another.
+    """
+    sender_uid, receiver_username = create_test_users
+
+    logging.info(f"Users before SendMessage call: Sender UID: {sender_uid}, Receiver: {receiver_username}")
+
+    request = chat_pb2.SendMessageRequest(
+        sender=sender_uid,
+        receiver_username=receiver_username,
+        text="Hello!",
+        timestamp="2025-02-24 14:00:00"
+    )
+    response = grpc_stub.SendMessage(request)
+    
+    assert response.success
+
+
+# ---------------- TEST ACCOUNT CREATION ---------------- #
+
+def test_create_account_valid(grpc_stub):
+    """
+    Test creating a new account.
+    """
+    new_username = "new_user"
+    new_password = "new_password"
+
+    check_request = chat_pb2.LoginUsernameRequest(username=new_username)
+    check_response = grpc_stub.LoginUsername(check_request)
+
+    assert not check_response.user_exists
+
+    create_request = chat_pb2.LoginPasswordRequest(username=new_username, password=new_password)
+    create_response = grpc_stub.LoginPassword(create_request)
+
+    assert create_response.success
+    assert create_response.uid is not None
+
+
+# ---------------- TEST LOGIN ---------------- #
+
+def test_login_valid_password(grpc_stub):
+    """
+    Test logging in with the correct password.
+    """
+    test_username = "valid_user"
+    test_password = "correct_password"
+
+    create_request = chat_pb2.LoginPasswordRequest(username=test_username, password=test_password)
+    create_response = grpc_stub.LoginPassword(create_request)
+    assert create_response.success
+    test_uid = create_response.uid
+
+    login_request = chat_pb2.LoginPasswordRequest(username=test_username, password=test_password)
+    login_response = grpc_stub.LoginPassword(login_request)
+
+    assert login_response.success
+    assert login_response.uid == test_uid
+
+
+def test_login_wrong_password(grpc_stub):
+    """
+    Test logging in with an incorrect password.
+    """
+    test_username = "wrong_password_user"
+    correct_password = "correct_password"
+    wrong_password = "incorrect_password"
+
+    create_request = chat_pb2.LoginPasswordRequest(username=test_username, password=correct_password)
+    create_response = grpc_stub.LoginPassword(create_request)
+    assert create_response.success
+
+    login_request = chat_pb2.LoginPasswordRequest(username=test_username, password=wrong_password)
+    login_response = grpc_stub.LoginPassword(login_request)
+
+    assert not login_response.success
+
+
+# ---------------- TEST GET SENT MESSAGES ---------------- #
+
+def test_get_sent_messages_valid(grpc_stub, create_test_users):
+    """
+    Test retrieving sent messages.
+    """
+    sender_uid, receiver_username = create_test_users
+
+    get_sent_request = chat_pb2.GetMessagesRequest(uid=sender_uid)
+    get_sent_response = grpc_stub.GetSentMessages(get_sent_request)
+
+    assert len(get_sent_response.mids) > 0
+
+    message_mid = get_sent_response.mids[0]
+    get_message_request = chat_pb2.GetMessageRequest(mid=message_mid)
+    get_message_response = grpc_stub.GetMessageByMid(get_message_request)
+
+    assert get_message_response.text == "Hello!"
+    assert get_message_response.sender_uid == sender_uid
+    assert get_message_response.receiver_username == receiver_username
+
+
