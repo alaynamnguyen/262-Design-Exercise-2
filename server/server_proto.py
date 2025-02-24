@@ -10,6 +10,7 @@ import hashlib
 import configparser
 from controller.login import check_username_exists, check_username_password, create_account
 from controller.accounts import list_accounts, delete_account
+from controller.messages import get_message_by_mid, get_received_messages_id, get_sent_messages_id, send_message, mark_message_read, delete_messages
 from model import User, Message
 from utils import dict_to_object_recursive, object_to_dict_recursive, parse_request, send_response
 
@@ -20,16 +21,7 @@ config.read("config.ini")
 HOST = config["network"]["host"]
 PORT = int(config["network"]["port"])
 
-# Message dict
-# TODO stick into function later
-messages_dict = dict()
-with open("server/test/message.json", "r") as f:
-    messages = json.load(f)
-for k, v in messages.items():
-    message = dict_to_object_recursive(v, Message)
-    messages_dict[message.mid] = message
-
-def load_users():
+def load_users_and_messages():
     """Loads user data from the JSON file."""
     # User dict
     users_dict = dict()
@@ -38,7 +30,15 @@ def load_users():
     for k, v in users.items():
         user = dict_to_object_recursive(v, User)
         users_dict[user.uid] = user
-    return users_dict
+
+    messages_dict = dict()
+    with open("server/test/message.json", "r") as f:
+        messages = json.load(f)
+    for k, v in messages.items():
+        message = dict_to_object_recursive(v, Message)
+        messages_dict[message.mid] = message
+    
+    return users_dict, messages_dict
 
 def save_users(users_dict):
     """Saves user data to the JSON file."""
@@ -52,7 +52,7 @@ def hash_password(password):
 class ChatService(chat_pb2_grpc.ChatServiceServicer):
     
     def __init__(self):
-        self.users_dict = load_users()
+        self.users_dict, self.messages_dict = load_users_and_messages()
 
     def LoginUsername(self, request, context):
         """Handles username lookup to check if a user exists."""
@@ -82,38 +82,49 @@ class ChatService(chat_pb2_grpc.ChatServiceServicer):
 
     def DeleteAccount(self, request, context):
         print("Calling DeleteAccount")
-        pass
+        uid = request.uid
+        success = delete_account(self.users_dict, uid)
+        return chat_pb2.DeleteAccountResponse(success=success)
    
     def ListAccounts(self, request, context):
         print("Calling LoginPassword")
         wildcard = request.wildcard
         accounts = list_accounts(self.users_dict, wildcard=wildcard)
-        return chat_pb2.LoginPasswordResponse(accounts=accounts)
+        return chat_pb2.ListAccountsResponse(accounts=accounts)
     
     def SendMessage(self, request, context):
         print("Calling SendMessage")
-        pass
+        message_sent = send_message(request.sender, request.receiver_username, request.text, self.users_dict, self.messages_dict, timestamp=request.timestamp)
+        return chat_pb2.SendMessageResponse(success=message_sent)
 
     def GetSentMessages(self, request, context):
         print("Calling GetSentMessages")
-        pass
+        uid = request.uid
+        mids = get_sent_messages_id(uid, self.users_dict)
+        return chat_pb2.GetMessagesResponse(mids=mids)
 
     def GetReceivedMessages(self, request, context):
         print("Calling GetReceivedMessages")
-        pass
+        uid = request.uid
+        mids = get_received_messages_id(uid, self.users_dict)
+        return chat_pb2.GetMessagesResponse(mids=mids)
 
     def GetMessageByMid(self, request, context):
         print("Calling GetMessageByMid")
-        pass
+        message = get_message_by_mid(request.mid, self.messages_dict)
+        return chat_pb2.GetMessageResponse(sender_uid=message["sender"], receiver_uid=message["receiver"], sender_username=message["sender_username"],
+                                           receiver_username=message["receiver_username"], text=message["text"], timestamp=message["timestamp"], receiver_read=message["receiver_read"])
 
     def MarkMessageRead(self, request, context):
         print("Calling MarkMessageRead")
-        pass
+        mid = request.mid
+        success = mark_message_read(self.messages_dict, mid)
+        return chat_pb2.MarkMessageReadResponse(success=success)
 
     def DeleteMessages(self, request, context):
         print("Calling DeleteMessages")
-        pass
-        
+        success, _ = delete_messages(self.users_dict, self.messages_dict, request.mids, uid=request.uid)
+        return chat_pb2.DeleteMessagesResponse(success=success)
     
 def serve():
     """Starts the gRPC server with only login flow."""

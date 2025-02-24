@@ -47,7 +47,6 @@ message DeleteAccountRequest {
 
 message DeleteAccountResponse {
     bool success = 1;
-    string uid = 2;
 }
 
 message ListAccountsRequest {

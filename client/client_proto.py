@@ -27,9 +27,8 @@ args = parser.parse_args()
 HOST = args.server_ip if args.server_ip else config["network"]["host"]
 POLL_FREQUENCY = args.poll_frequency if args.poll_frequency else 10000  # Default to 10s polling
 PORT = int(config["network"]["port"])
-SERVER_ADDRESS = f"{HOST}:{PORT}"  # Update if needed
+SERVER_ADDRESS = f"{HOST}:{PORT}"
 
-print(f"Starting ChatApp with server: {HOST}:{PORT}, Polling Frequency: {POLL_FREQUENCY}ms")
 def hash_password(password):
     """Hashes a password using SHA-256 before sending to the server."""
     return hashlib.sha256(password.encode()).hexdigest()
@@ -130,7 +129,7 @@ class ChatApp:
                 else:
                     messagebox.showerror("Error", "Incorrect password.")
             except grpc.RpcError as e:
-                print(e.details())
+                print("GRPC ERROR", e.details())
                 messagebox.showerror("Error", "Login failed. Please check your credentials.")
 
     def load_home_page(self):
@@ -162,7 +161,7 @@ class ChatApp:
 
     def delete_account(self):
         """Deletes the user account and closes the application."""
-        response = accounts.delete_account(self.sock, self.client_uid, USE_WIRE_PROTOCOL)
+        response = communication.delete_account(SERVER_ADDRESS, self.client_uid)
         if response["success"]:
             messagebox.showinfo("Success", "Account successfully deleted. Closing application.")
             self.root.quit()  # Close the entire Tkinter app
@@ -215,7 +214,7 @@ class ChatApp:
     def list_accounts(self):
         """Fetches and displays accounts based on wildcard search."""
         wildcard = self.search_entry.get().strip() or "*"
-        response = communication.build_and_send_task(self.sock, "list-accounts", USE_WIRE_PROTOCOL, wildcard=wildcard)
+        response = communication.list_accounts(SERVER_ADDRESS, wildcard)
         self.recipient_listbox.delete(0, tk.END)
         for account in response["accounts"]:
             self.recipient_listbox.insert(tk.END, account)
@@ -238,14 +237,15 @@ class ChatApp:
             messagebox.showerror("Error", "Message exceeds 280 characters.")
             return
 
-        communication.build_and_send_task(self.sock, "send-message", USE_WIRE_PROTOCOL, sender=self.client_uid, receiver=recipient, text=message_text, timestamp=str(datetime.now()))
+        communication.send_message(SERVER_ADDRESS, self.client_uid, recipient, message_text, str(datetime.now()))
+        
         messagebox.showinfo("Success", "Message sent successfully!")
         self.load_received_messages()
 
     def poll_for_new_messages(self):
         """Regularly fetches new messages and syncs cache with the server."""
         if self.current_page == "received":
-            response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
+            response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
             mids = response["mids"]
 
             # Remove messages from cache that no longer exist on server
@@ -259,8 +259,7 @@ class ChatApp:
             # Fetch new messages
             new_mids = [mid for mid in mids if mid not in self.received_message_cache]
             for mid in new_mids:
-                msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
-                self.received_message_cache[mid] = msg_response["message"]
+                self.received_message_cache[mid] = communication.get_message_by_mid(SERVER_ADDRESS, mid)
 
             # Update unread message counters correctly
             self.total_unread_count = sum(1 for msg in self.received_message_cache.values() if not msg["receiver_read"])
@@ -274,6 +273,7 @@ class ChatApp:
 
     def load_received_messages(self):
         """Fetch and display only read messages. Resets fetch tracking when switching to 'Received'."""
+        print("load_received_messages")
         self.clear_screen()
         self.create_nav_buttons()
 
@@ -286,7 +286,7 @@ class ChatApp:
         self.displayed_mids.clear()
 
         # Fetch all received message IDs
-        response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
         mids = response["mids"]
 
         # Reset caches to ensure fresh data is stored
@@ -294,8 +294,7 @@ class ChatApp:
 
         # Fetch messages by MID and store them in the cache
         for mid in mids:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
-            self.received_message_cache[mid] = msg_response["message"]
+            self.received_message_cache[mid] = communication.get_message_by_mid(SERVER_ADDRESS, mid)
 
         # Sort messages by timestamp (latest first)
         sorted_messages = sorted(self.received_message_cache.values(), key=lambda x: x["timestamp"], reverse=True)
@@ -368,14 +367,13 @@ class ChatApp:
             return
 
         # **Refetch received messages to ensure up-to-date data**
-        response = communication.build_and_send_task(self.sock, "get-received-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
         mids = response["mids"]
 
         # **Ensure message cache is up-to-date before fetching unread**
         for mid in mids:
             if mid not in self.received_message_cache:
-                msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
-                self.received_message_cache[mid] = msg_response["message"]
+                self.received_message_cache[mid] = communication.get_message_by_mid(SERVER_ADDRESS, mid)
 
         # **Get only unread messages that are NOT already displayed**
         unread_messages = sorted(
@@ -412,7 +410,7 @@ class ChatApp:
 
         tk.Button(control_frame, text="Delete Selected", command=self.delete_selected_messages, bg="red").pack(side=tk.RIGHT, padx=5)
 
-        response = communication.build_and_send_task(self.sock, "get-sent-messages", USE_WIRE_PROTOCOL, sender=self.client_uid)
+        response = communication.get_messages(SERVER_ADDRESS, self.client_uid)
         mids = response["mids"]
 
         new_messages = []
@@ -421,8 +419,7 @@ class ChatApp:
                 new_messages.append(mid)
 
         for mid in new_messages:
-            msg_response = communication.build_and_send_task(self.sock, "get-message-by-mid", USE_WIRE_PROTOCOL, mid=mid)
-            self.sent_message_cache[mid] = msg_response["message"]  # Store in cache
+            self.sent_message_cache[mid] = communication.get_message_by_mid(SERVER_ADDRESS, mid)
 
         # Sort messages so newest appear first
         sorted_messages = sorted(self.sent_message_cache.values(), key=lambda x: x["timestamp"], reverse=True)
@@ -500,7 +497,7 @@ class ChatApp:
             messagebox.showerror("Error", "No messages selected for deletion.")
             return
 
-        client_messages.delete_messages(self.sock, list(self.selected_messages), self.client_uid, USE_WIRE_PROTOCOL)
+        communication.delete_messages(SERVER_ADDRESS, self.client_uid, list(self.selected_messages))
 
         # Remove from local cache
         for mid in self.selected_messages:
@@ -516,7 +513,7 @@ class ChatApp:
 
     def mark_message_read(self, mid):
         """Marks a message as read on both the client and server without refreshing everything."""
-        client_messages.mark_message_read(self.sock, mid, USE_WIRE_PROTOCOL)
+        communication.mark_message_read(SERVER_ADDRESS, mid)
 
         if mid in self.received_message_cache:
             self.received_message_cache[mid]["receiver_read"] = True

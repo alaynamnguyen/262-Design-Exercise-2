@@ -1,7 +1,7 @@
 from model import Message
 from utils import object_to_dict_recursive
 
-def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp, connected_clients): 
+def send_message(sender_uid, receiver_username, text, users_dict, messages_dict, timestamp, connected_clients=None): 
     """
     Sends a message from a sender to a recipient. If the recipient is online, they are notified immediately.
 
