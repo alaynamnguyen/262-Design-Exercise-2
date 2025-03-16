@@ -1,6 +1,5 @@
 from datetime import datetime
 import uuid
-from utils import dict_to_object_recursive, object_to_dict_recursive
 
 class Message:
     """

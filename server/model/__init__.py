@@ -1,2 +1,2 @@
-from .user import User
-from .message import Message
+import server.model.user
+import server.model.message

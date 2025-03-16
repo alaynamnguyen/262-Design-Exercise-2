@@ -1,6 +1,5 @@
 import uuid
 import json
-from utils import dict_to_object_recursive, object_to_dict_recursive
 
 class User:
     """
